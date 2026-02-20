@@ -1,7 +1,7 @@
 import { http, HttpResponse } from "msw";
 import type { PartCreateDTO, PartRecord, PartUpdateDTO } from "../PartTypes";
 import { PartMockdata } from "./mockdata";
-import { paginate } from "../../../mocks/shared/utils";
+import { paginate, parseDateValue, formatDate } from "../../../mocks/shared/utils";
 
 type ListResponse<T> = {
   data: T;
@@ -42,10 +42,11 @@ export const partHandlers = [
       }
 
       if (startDate || endDate) {
-        const s = startDate ? new Date(startDate) : null;
-        const e = endDate ? new Date(endDate) : null;
+        const s = startDate ? parseDateValue(startDate) : null;
+        const e = endDate ? parseDateValue(endDate) : null;
         data = data.filter((r) => {
-          const d = new Date(r.createdDate);
+          const d = parseDateValue(r.createdDate);
+          if (!d) return false;
           return (s ? d >= s : true) && (e ? d <= e : true);
         });
       }
@@ -81,8 +82,8 @@ export const partHandlers = [
           id: body.categoryId,
           name: `카테고리 ${String(body.categoryId)}`,
         },
-        createdDate: new Date().toISOString(),
-        updatedDate: new Date().toISOString(),
+        createdDate: formatDate(new Date()),
+        updatedDate: formatDate(new Date()),
         price: body.price,
         safetyStockQty: null,
         carModelNames: [],
@@ -122,7 +123,7 @@ export const partHandlers = [
         target.price = patch.price;
       }
 
-      target.updatedDate = new Date().toISOString();
+      target.updatedDate = formatDate(new Date());
 
       PartMockdata[idx] = target;
       return HttpResponse.json(PartMockdata[idx]);

@@ -11,6 +11,11 @@ export const categoryKeys = {
   detail: (id: string | number) => ["category", "detail", String(id)] as const,
 };
 
+const CATEGORY_BASE =
+  import.meta.env && import.meta.env.DEV
+    ? "/warehouse/api/v1/parts/categories"
+    : WAREHOUSE_ENDPOINTS.PART_CATEGORIES;
+
 export type CategoryListParams = {
   keyword?: string;
   startDate?: string | null;
@@ -31,7 +36,7 @@ type ApiResponse<T> = {
 export async function fetchCategory(
   params: CategoryListParams
 ): Promise<ListResponse<CategoryRecord[]>> {
-  const url = `${WAREHOUSE_ENDPOINTS.PART_CATEGORIES}`;
+  const url = CATEGORY_BASE;
   const res = await fetch(url);
 
   if (!res.ok) throw new Error(`카테고리 조회 실패 (${res.status})`);
@@ -66,7 +71,7 @@ export async function fetchCategory(
 export async function fetchCategoryDetail(
   id: string | number
 ): Promise<CategoryDetailRecord> {
-  const res = await fetch(`${WAREHOUSE_ENDPOINTS.PART_CATEGORIES}/${id}`, {
+  const res = await fetch(`${CATEGORY_BASE}/${id}`, {
     headers: { Accept: "application/json" },
   });
   if (!res.ok) throw new Error(`카테고리 상세 조회 실패 (${res.status})`);
@@ -80,7 +85,7 @@ export async function fetchCategoryDetail(
 export async function createCategory(
   dto: CategoryCreateDTO
 ): Promise<CategoryRecord> {
-  const res = await fetch(`${WAREHOUSE_ENDPOINTS.PART_CATEGORIES}`, {
+  const res = await fetch(`${CATEGORY_BASE}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify(dto),
@@ -95,7 +100,7 @@ export async function updateCategory(
   id: string | number,
   dto: CategoryUpdateDTO
 ): Promise<CategoryRecord> {
-  const res = await fetch(`${WAREHOUSE_ENDPOINTS.PART_CATEGORIES}/${id}`, {
+  const res = await fetch(`${CATEGORY_BASE}/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify(dto),
@@ -109,7 +114,7 @@ export async function updateCategory(
 export async function deleteCategory(
   id: string | number
 ): Promise<{ ok: true; removedId: string }> {
-  const res = await fetch(`${WAREHOUSE_ENDPOINTS.PART_CATEGORIES}/${id}`, {
+  const res = await fetch(`${CATEGORY_BASE}/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error(`카테고리 삭제 실패 (${res.status})`);

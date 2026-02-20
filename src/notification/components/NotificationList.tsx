@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
+import { Bell } from "lucide-react";
 import styled from "styled-components";
 import { connectSSE, markAsRead } from "../NotificationApi";
 import type { NotificationItem } from "../NotificationTypes";
@@ -13,8 +14,7 @@ const BellButton = styled.button`
   height: 42px;
   border-radius: 50%;
   border: none;
-  background: #f9fafb;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
   cursor: pointer;
   transition: 0.2s;
   &:hover {
@@ -95,9 +95,41 @@ export const NotificationList: React.FC = () => {
   const [connected, setConnected] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null); // SSE 유지용 ref
+  const isMock = Boolean(import.meta.env && import.meta.env.DEV);
 
   // SSE 최초 연결
   useEffect(() => {
+    if (isMock) {
+      setConnected(true);
+      setNotifications([
+        {
+          id: 101,
+          message: "입고 예정 3건이 등록되었습니다.",
+          type: "inbound",
+          eventId: "INBOUND-20260105-001",
+          receiver: "본사",
+          read: false,
+        },
+        {
+          id: 102,
+          message: "출고 지연 1건이 발생했습니다.",
+          type: "outbound",
+          eventId: "OUTBOUND-20260105-002",
+          receiver: "본사",
+          read: false,
+        },
+        {
+          id: 103,
+          message: "재고 안전수량 미달 품목이 감지되었습니다.",
+          type: "stock",
+          eventId: "STOCK-ALERT-003",
+          receiver: "본사",
+          read: false,
+        },
+      ]);
+      return;
+    }
+
     if (eventSourceRef.current) return; // 이미 연결되어 있으면 스킵
 
     const receiver = "본사";
@@ -127,7 +159,7 @@ export const NotificationList: React.FC = () => {
       (err) => {
         console.error("SSE 오류:", err);
         setConnected(false);
-      }
+      },
     );
 
     es.onopen = () => {
@@ -169,7 +201,9 @@ export const NotificationList: React.FC = () => {
 
   return (
     <Wrapper ref={dropdownRef}>
-      <BellButton onClick={() => setIsOpen((prev) => !prev)}>🔔</BellButton>
+      <BellButton onClick={() => setIsOpen((prev) => !prev)} aria-label="알림">
+        <Bell size={24} className="text-white" />
+      </BellButton>
       {notifications.some((n) => !n.read) && <Badge />}
 
       {isOpen && (

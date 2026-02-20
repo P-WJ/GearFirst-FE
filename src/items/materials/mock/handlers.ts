@@ -1,5 +1,9 @@
 import { http, HttpResponse } from "msw";
-import { paginate } from "../../../mocks/shared/utils";
+import {
+  paginate,
+  parseDateValue,
+  formatDate,
+} from "../../../mocks/shared/utils";
 import { MaterialMockdata } from "./mockdata"; // 새 Material 목데이터(배열)
 import type {
   MaterialRecord,
@@ -37,10 +41,10 @@ export const materialHandlers = [
       }
 
       if (startDate || endDate) {
-        const s = startDate ? new Date(startDate) : null;
-        const e = endDate ? new Date(endDate) : null;
+        const s = startDate ? parseDateValue(startDate) : null;
+        const e = endDate ? parseDateValue(endDate) : null;
         data = data.filter((r) => {
-          const dateValue = r.createdDate ? new Date(r.createdDate) : null;
+          const dateValue = r.createdDate ? parseDateValue(r.createdDate) : null;
           const afterStart = s ? !!dateValue && dateValue >= s : true;
           const beforeEnd = e ? !!dateValue && dateValue <= e : true;
           return afterStart && beforeEnd;
@@ -77,7 +81,7 @@ export const materialHandlers = [
             : Date.now(),
         materialCode: body.materialCode.trim(),
         materialName: body.materialName.trim(),
-        createdDate: new Date().toISOString().slice(0, 10),
+        createdDate: formatDate(new Date()),
       };
 
       MaterialMockdata.unshift(created);

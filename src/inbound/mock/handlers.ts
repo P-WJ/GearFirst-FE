@@ -1,5 +1,6 @@
 import { http, HttpResponse } from "msw";
 import { mockdata as inboundRecords } from "./mockdata";
+import { parseDateValue } from "../../mocks/shared/utils";
 
 export const handlers = [
   // Inbound 목록
@@ -27,12 +28,13 @@ export const handlers = [
       });
     }
     if (startDate || endDate) {
-      const s = startDate ? new Date(startDate) : null;
-      const e = endDate ? new Date(endDate) : null;
+      const s = startDate ? parseDateValue(startDate) : null;
+      const e = endDate ? parseDateValue(endDate) : null;
       data = data.filter((r) => {
         const targetDate = r.requestedAt ?? r.completedAt ?? "";
         if (!targetDate) return !s && !e;
-        const d = new Date(targetDate);
+        const d = parseDateValue(targetDate);
+        if (!d) return !s && !e;
         return (s ? d >= s : true) && (e ? d <= e : true);
       });
     }

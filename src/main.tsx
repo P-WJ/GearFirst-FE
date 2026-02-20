@@ -22,10 +22,10 @@ const queryClient = new QueryClient({
 
 async function enableMocking() {
   if (import.meta.env && import.meta.env.MODE === "development") {
-    // const { worker } = await import("./mocks/browser");
-    // await worker.start({
-    //   onUnhandledRequest: "bypass",
-    // });
+    const { worker } = await import("./mocks/browser");
+    await worker.start({
+      onUnhandledRequest: "bypass",
+    });
   }
 }
 
@@ -36,7 +36,7 @@ enableMocking().then(() => {
       <App />
       {/* 개발 중 디버깅용: 선택사항 */}
       <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
+    </QueryClientProvider>,
     // </React.StrictMode>
   );
 });

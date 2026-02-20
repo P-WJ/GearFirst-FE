@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import styled, { css } from "styled-components";
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -137,9 +137,9 @@ export default function DashboardPage() {
       const total = payload.total ?? items.length;
       const assetValue = items.reduce(
         (acc, item) => acc + (item.partPrice ?? 0) * (item.partQuantity ?? 0),
-        0
+        0,
       );
-      return { total, assetValue };
+      return { total, assetValue, items };
     },
     staleTime: 5 * 60 * 1000,
   });
@@ -255,6 +255,65 @@ export default function DashboardPage() {
     return `${Math.round(ratio * 100)}%`;
   }, [pendingOrders.data, processedOrders.data]);
 
+  const assetDistribution = useMemo(() => {
+    const items = propertyRecords.data?.items ?? [];
+    if (items.length === 0) {
+      return { top20: 0, middle50: 0, bottom30: 0 };
+    }
+
+    const sorted = [...items].sort((a, b) => {
+      const av = (a.partPrice ?? 0) * (a.partQuantity ?? 0);
+      const bv = (b.partPrice ?? 0) * (b.partQuantity ?? 0);
+      return bv - av;
+    });
+
+    const totalValue = sorted.reduce(
+      (acc, item) => acc + (item.partPrice ?? 0) * (item.partQuantity ?? 0),
+      0,
+    );
+
+    if (!totalValue) {
+      return { top20: 0, middle50: 0, bottom30: 0 };
+    }
+
+    const topCount = Math.max(1, Math.ceil(sorted.length * 0.2));
+    const bottomCount = Math.max(1, Math.ceil(sorted.length * 0.3));
+    const middleCount = Math.max(0, sorted.length - topCount - bottomCount);
+
+    const topValue = sorted
+      .slice(0, topCount)
+      .reduce(
+        (acc, item) => acc + (item.partPrice ?? 0) * (item.partQuantity ?? 0),
+        0,
+      );
+    const middleValue = sorted
+      .slice(topCount, topCount + middleCount)
+      .reduce(
+        (acc, item) => acc + (item.partPrice ?? 0) * (item.partQuantity ?? 0),
+        0,
+      );
+    const bottomValue = sorted
+      .slice(sorted.length - bottomCount)
+      .reduce(
+        (acc, item) => acc + (item.partPrice ?? 0) * (item.partQuantity ?? 0),
+        0,
+      );
+
+    const toPercent = (value: number) => Math.round((value / totalValue) * 100);
+
+    let top20 = toPercent(topValue);
+    let middle50 = toPercent(middleValue);
+    let bottom30 = toPercent(bottomValue);
+
+    const totalPercent = top20 + middle50 + bottom30;
+    if (totalPercent !== 100) {
+      const diff = 100 - totalPercent;
+      top20 += diff;
+    }
+
+    return { top20, middle50, bottom30 };
+  }, [propertyRecords.data?.items]);
+
   const trendSeries = useMemo<TrendPoint[]>(() => {
     const base = [
       {
@@ -317,8 +376,8 @@ export default function DashboardPage() {
         secondary: processedOrdersLoading
           ? "승인 데이터를 불러오는 중"
           : processedOrdersRefreshing
-          ? "승인 데이터를 동기화 중…"
-          : `이번 주 처리 ${formatNumber(processedOrders.data)}건`,
+            ? "승인 데이터를 동기화 중…"
+            : `이번 주 처리 ${formatNumber(processedOrders.data)}건`,
         status:
           processedOrders.data && processedOrders.data > 0 ? "ok" : "muted",
         loading: pendingOrders.isFetching || processedOrders.isFetching,
@@ -391,8 +450,8 @@ export default function DashboardPage() {
         secondary: propertyRecordsLoading
           ? "자산 가치를 계산 중입니다"
           : propertyRecordsRefreshing
-          ? "자산 정보를 동기화 중…"
-          : `표본 자산 ₩${formatNumber(propertyRecords.data?.assetValue ?? 0)}`,
+            ? "자산 정보를 동기화 중…"
+            : `표본 자산 ₩${formatNumber(propertyRecords.data?.assetValue ?? 0)}`,
         status:
           inventoryParts.data && inventoryParts.data > 0 ? "ok" : "warning",
         loading: inventoryParts.isFetching || propertyRecords.isFetching,
@@ -414,8 +473,8 @@ export default function DashboardPage() {
         secondary: propertyRecordsLoading
           ? undefined
           : propertyRecordsRefreshing
-          ? "자산 정보를 동기화 중…"
-          : `총액 ₩${formatNumber(propertyRecords.data?.assetValue ?? 0)}`,
+            ? "자산 정보를 동기화 중…"
+            : `총액 ₩${formatNumber(propertyRecords.data?.assetValue ?? 0)}`,
         status:
           propertyRecords.data && propertyRecords.data.total > 0
             ? "ok"
@@ -551,7 +610,7 @@ export default function DashboardPage() {
                 {inboundRecordsLoading || outboundRecordsLoading
                   ? "0"
                   : formatNumber(
-                      (inboundRecords.data ?? 0) + (outboundRecords.data ?? 0)
+                      (inboundRecords.data ?? 0) + (outboundRecords.data ?? 0),
                     )}
               </strong>
               {(inboundRecordsRefreshing || outboundRecordsRefreshing) && (
@@ -694,15 +753,24 @@ export default function DashboardPage() {
                 {propertyRecordsLoading
                   ? "데이터 로딩 중"
                   : propertyRecordsRefreshing
-                  ? "자산 데이터를 동기화 중…"
-                  : `자산 항목 ${formatNumber(
-                      propertyRecords.data?.total ?? 0
-                    )}건`}
+                    ? "자산 데이터를 동기화 중…"
+                    : `자산 항목 ${formatNumber(
+                        propertyRecords.data?.total ?? 0,
+                      )}건`}
               </InsightDelta>
               <InsightBar>
-                <span style={{ width: "62%" }} />
-                <span style={{ width: "28%" }} />
-                <span style={{ width: "10%" }} />
+                <div className="segment primary">
+                  <span>핵심 재고 (상위 20%)</span>
+                  <strong>{assetDistribution.top20}%</strong>
+                </div>
+                <div className="segment secondary">
+                  <span>일반 재고 (중간 50%)</span>
+                  <strong>{assetDistribution.middle50}%</strong>
+                </div>
+                <div className="segment tertiary">
+                  <span>저비중 재고 (하위 30%)</span>
+                  <strong>{assetDistribution.bottom30}%</strong>
+                </div>
               </InsightBar>
               <InsightFootnote>재고·자산 집중도 요약</InsightFootnote>
             </InsightCard>
@@ -711,7 +779,7 @@ export default function DashboardPage() {
               <InsightLabel>운영 네트워크</InsightLabel>
               <InsightValue>
                 {formatNumber(
-                  (companyRecords.data ?? 0) + (humanRecords.data ?? 0)
+                  (companyRecords.data ?? 0) + (humanRecords.data ?? 0),
                 )}
               </InsightValue>
               <InsightDelta $tone="neutral">
@@ -989,19 +1057,51 @@ const InsightDelta = styled.span<{
     $tone === "positive"
       ? "#0f766e"
       : $tone === "negative"
-      ? "#dc2626"
-      : "#52525b"};
+        ? "#dc2626"
+        : "#52525b"};
 `;
 
 const InsightBar = styled.div`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.7rem;
+  align-items: stretch;
 
-  span {
-    height: 38px;
-    border-radius: 12px;
-    background: #111111;
+  .segment {
+    min-height: 70px;
+    border-radius: 14px;
+    padding: 0.75rem 0.85rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    color: #111111;
+    border: 1px solid rgba(17, 17, 17, 0.12);
+    background: rgba(17, 17, 17, 0.04);
+    overflow: hidden;
+  }
+
+  .segment strong {
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+
+  .segment span {
+    font-size: 0.72rem;
+    color: #6c6c72;
+    line-height: 1.2;
+    white-space: normal;
+    word-break: keep-all;
+  }
+
+  .segment.primary {
+    background: rgba(17, 17, 17, 0.12);
+  }
+  .segment.secondary {
+    background: rgba(17, 17, 17, 0.08);
+  }
+  .segment.tertiary {
+    background: rgba(17, 17, 17, 0.04);
   }
 `;
 
@@ -1051,7 +1151,9 @@ const MenuCard = styled(Link)<{
   background: #ffffff;
   border: 1px solid #e4e4e7;
   box-shadow: 0 20px 42px rgba(15, 15, 23, 0.05);
-  transition: transform 0.18s ease, box-shadow 0.18s ease,
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
     border-color 0.18s ease;
 
   ${({ $status, $isError }) =>
@@ -1061,12 +1163,12 @@ const MenuCard = styled(Link)<{
           border-color: rgba(17, 17, 17, 0.12);
         `
       : $status === "warning"
-      ? css`
-          border-color: rgba(17, 17, 17, 0.25);
-        `
-      : css`
-          border-color: #e4e4e7;
-        `)}
+        ? css`
+            border-color: rgba(17, 17, 17, 0.25);
+          `
+        : css`
+            border-color: #e4e4e7;
+          `)}
 
   ${({ $isError }) =>
     $isError &&
