@@ -1,29 +1,36 @@
-import type { TokenResponse } from "../types/auth";
+﻿import type { TokenResponse } from "../types/auth";
 import { syncUserProfileFromToken } from "../utils/userProfile";
+import { AUTH_BYPASS, ensureBypassAuth } from "../utils/bypassAuth";
 
 const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER;
-const CLIENT_ID = import.meta.env.VITE_CLIENT_ID;
-const CLIENT_SECRET = import.meta.env.VITE_CLIENT_SECRET;
+const CLIENT_ID = import.meta.env.VITE_CLIENT_ID ?? "gearfirst-client";
 
 export async function refreshAccessToken(): Promise<string | null> {
-  const refreshToken = localStorage.getItem("refresh_token");
-  if (!refreshToken) {
-    alert("로그인이 필요합니다.");
-    window.location.href = "/";
+  if (AUTH_BYPASS) {
+    return ensureBypassAuth();
+  }
+
+  if (!AUTH_SERVER) {
+    window.location.href = "/login";
     return null;
   }
 
-  const basicAuth = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
+  const refreshToken = localStorage.getItem("refresh_token");
+  if (!refreshToken) {
+    alert("로그인이 필요합니다.");
+    window.location.href = "/login";
+    return null;
+  }
 
   const res = await fetch(`${AUTH_SERVER}/oauth2/token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${basicAuth}`,
     },
     body: new URLSearchParams({
       grant_type: "refresh_token",
       refresh_token: refreshToken,
+      client_id: CLIENT_ID,
     }),
   });
 

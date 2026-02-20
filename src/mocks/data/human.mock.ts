@@ -2,19 +2,19 @@
 import { isoDate, pick, range } from "./utils";
 
 export const regions: Region[] = [
-  { regionId: 1, regionName: "Seoul" },
-  { regionId: 2, regionName: "Busan" },
-  { regionId: 3, regionName: "Incheon" },
-  { regionId: 4, regionName: "Daejeon" },
-  { regionId: 5, regionName: "Gwangju" },
+  { regionId: 1, regionName: "서울" },
+  { regionId: 2, regionName: "부산" },
+  { regionId: 3, regionName: "인천" },
+  { regionId: 4, regionName: "대전" },
+  { regionId: 5, regionName: "광주" },
 ];
 
 export const workTypes: WorkType[] = [
-  { workTypeId: 1, workTypeName: "Production" },
-  { workTypeId: 2, workTypeName: "Logistics" },
-  { workTypeId: 3, workTypeName: "Quality" },
-  { workTypeId: 4, workTypeName: "Purchasing" },
-  { workTypeId: 5, workTypeName: "Planning" },
+  { workTypeId: 1, workTypeName: "생산" },
+  { workTypeId: 2, workTypeName: "물류" },
+  { workTypeId: 3, workTypeName: "품질" },
+  { workTypeId: 4, workTypeName: "구매" },
+  { workTypeId: 5, workTypeName: "기획" },
 ];
 
 const RANKS = ["STAFF", "SENIOR", "MANAGER", "DIRECTOR"] as const;
@@ -24,7 +24,7 @@ export const users: UserRecord[] = range(28).map((i) => {
   const workType = pick(workTypes, i + 1);
   return {
     id: 6000 + i,
-    name: `User ${i + 1}`,
+    name: `사용자 ${i + 1}`,
     regionId: region.regionId,
     region: region.regionName,
     workTypeId: workType.workTypeId,

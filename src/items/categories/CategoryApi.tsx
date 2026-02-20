@@ -36,7 +36,14 @@ type ApiResponse<T> = {
 export async function fetchCategory(
   params: CategoryListParams
 ): Promise<ListResponse<CategoryRecord[]>> {
-  const url = CATEGORY_BASE;
+  const qs = new URLSearchParams();
+  if (params.keyword?.trim()) qs.set("keyword", params.keyword.trim());
+  if (params.startDate) qs.set("startDate", params.startDate);
+  if (params.endDate) qs.set("endDate", params.endDate);
+  if (params.page != null) qs.set("page", String(Math.max(0, params.page - 1)));
+  if (params.pageSize != null) qs.set("size", String(params.pageSize));
+
+  const url = qs.toString() ? `${CATEGORY_BASE}?${qs.toString()}` : CATEGORY_BASE;
   const res = await fetch(url);
 
   if (!res.ok) throw new Error(`카테고리 조회 실패 (${res.status})`);

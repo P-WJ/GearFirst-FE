@@ -1,13 +1,13 @@
-﻿import { isoDate, makeCode, pick, range } from "./utils";
+﻿import { isoDate, pick, range } from "./utils";
 import { materialRecords } from "./items.mock";
 
 const COMPANIES = [
-  "Jisung Materials",
-  "Daeyoung Metals",
-  "Hanil Supply",
-  "Sejin Trading",
-  "Mirae Components",
-  "Yujin Industry",
+  "지성소재",
+  "대영금속",
+  "한일서플라이",
+  "세진트레이딩",
+  "미래컴포넌트",
+  "유진산업",
 ];
 
 export type CompanyListItem = {
@@ -42,3 +42,5 @@ export const companyListItems: CompanyListItem[] = range(26).map((i) => {
 });
 
 export const purchasingMaterials = materialRecords;
+
+

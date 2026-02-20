@@ -10,11 +10,11 @@ const STATUSES: OutboundStatus[] = [
 ];
 
 const BRANCHES = [
-  "Seoul Central",
-  "Busan East",
-  "Gwangju Hub",
-  "Daejeon North",
-  "Ulsan Port",
+  "서울 중앙",
+  "부산 동부",
+  "광주 허브",
+  "대전 북부",
+  "울산 항만",
 ];
 
 const WAREHOUSES = ["WH-A1", "WH-A2", "WH-B1", "WH-C2"];
@@ -49,14 +49,14 @@ export const outboundRecords: OutboundRecord[] = range(26).map((i) => {
     expectedShipDate,
     branchName: pick(BRANCHES, i),
     totalQty: lines.reduce((sum, line) => sum + line.orderedQty, 0),
-    assigneeName: i % 2 === 0 ? "Chris Kim" : "Dana Choi",
-    assigneeDept: i % 2 === 0 ? "Logistics" : "Outbound",
+    assigneeName: i % 2 === 0 ? "김민준" : "최다은",
+    assigneeDept: i % 2 === 0 ? "물류팀" : "출고팀",
     assigneePhone: i % 2 === 0 ? "010-2211-7788" : "010-4422-8844",
     status,
     warehouseCode: pick(WAREHOUSES, i),
     remark:
       i % 9 === 0
-        ? "Urgent shipment with tight delivery window, verify packing list."
+        ? "긴급 출고 건으로 납기 여유가 적습니다. 패킹리스트를 확인하세요."
         : "",
     completedAt,
     itemKindsNumber: lines.length,

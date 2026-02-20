@@ -359,26 +359,3 @@ const Ellipsis = styled.span`
   color: #9ca3af;
 `;
 
-const Busy = styled.div<{ $show: boolean }>`
-  position: absolute;
-  right: -28px;
-  width: 16px;
-  height: 16px;
-  opacity: ${({ $show }) => ($show ? 1 : 0)};
-  transition: opacity 140ms ease;
-  &:before {
-    content: "";
-    display: block;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    border: 2px solid #d1d5db;
-    border-top-color: #4f46e5;
-    animation: spin 0.9s linear infinite;
-  }
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;

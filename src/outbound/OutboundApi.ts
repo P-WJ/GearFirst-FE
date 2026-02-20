@@ -15,7 +15,7 @@ export const outboundKeys = {
 };
 
 export type OutboundListParams = {
-  status?: "all" | "not-done" | "done";
+  status?: "all" | "not-done" | "done" | "completed" | "delayed";
   dateFrom?: string | null;
   dateTo?: string | null;
   warehouseCode?: string;
@@ -32,6 +32,19 @@ export type ListResponse<T> = {
     pageSize: number;
     totalPages: number;
   };
+};
+
+type OutboundListPayload = {
+  data?: {
+    items?: OutboundRecord[];
+    total?: number;
+    page?: number;
+    size?: number;
+  };
+};
+
+type OutboundDetailPayload = {
+  data?: OutboundRecord;
 };
 
 // 페이지 사이즈 보정
@@ -83,7 +96,7 @@ async function requestOutboundList(
     throw new Error(`출고 데이터 요청 실패 (${res.status})`);
   }
 
-  const payload: any = await res.json().catch(() => ({}));
+  const payload = (await res.json().catch(() => ({}))) as OutboundListPayload;
   const { items, total, page, size } = payload?.data ?? {};
   const resolvedSize = clampPageSize(size ?? mergedParams.pageSize);
 
@@ -120,6 +133,18 @@ export function fetchOutboundDoneRecords(
   return requestOutboundList(params, "done");
 }
 
+export function fetchOutboundCompletedRecords(
+  params?: OutboundListParams
+): Promise<ListResponse<OutboundRecord[]>> {
+  return requestOutboundList(params, "completed");
+}
+
+export function fetchOutboundDelayedRecords(
+  params?: OutboundListParams
+): Promise<ListResponse<OutboundRecord[]>> {
+  return requestOutboundList(params, "delayed");
+}
+
 // 상세 조회 API
 export async function fetchOutboundDetail(
   noteId: string | number
@@ -131,6 +156,6 @@ export async function fetchOutboundDetail(
     throw new Error(`출고 상세 요청 실패 (${res.status})`);
   }
 
-  const payload: any = await res.json().catch(() => ({}));
+  const payload = (await res.json().catch(() => ({}))) as OutboundDetailPayload;
   return payload?.data as OutboundRecord;
 }

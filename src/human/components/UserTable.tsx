@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import { Table, Th, Td, StatusBadge } from "../../components/common/PageLayout";
 import type { UserRecord } from "../HumanTypes";
 import { useState } from "react";
@@ -6,15 +5,6 @@ import UserDetailModal from "./UserDetailModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteUser, updateUser, userKeys } from "../HumanApi";
 import { getRankMeta } from "../utils/rank";
-
-const EmptyRow = styled.tr`
-  td {
-    padding: 20px;
-    text-align: center;
-    color: #6b7280;
-    font-size: 0.95rem;
-  }
-`;
 
 export default function UserTable({ rows }: { rows?: UserRecord[] }) {
   const data = Array.isArray(rows) ? rows : [];

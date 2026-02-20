@@ -2,16 +2,16 @@
   ServerBOMItem,
   ServerBOMMaterialItem,
 } from "../../bom/BOMTypes";
-import { dateOnly, makeCode, makeName, pick, range } from "./utils";
+import { dateOnly, makeCode, pick, range } from "./utils";
 import { materialRecords, partListItems } from "./items.mock";
 
 const CATEGORIES = [
-  "Transmission",
-  "Drive Unit",
-  "Battery",
-  "Chassis",
-  "Body",
-  "Interior",
+  "변속기",
+  "구동계",
+  "배터리",
+  "섀시",
+  "바디",
+  "내장",
 ];
 
 export const bomItems: ServerBOMItem[] = range(22).map((i) => {

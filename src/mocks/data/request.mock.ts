@@ -8,10 +8,10 @@ import { isoDate, makeCode, pick, range } from "./utils";
 import { partListItems } from "./items.mock";
 
 const ENGINEERS = [
-  { name: "Minji Park", role: "Purchasing" },
-  { name: "Eunwoo Han", role: "QA" },
-  { name: "Jisoo Lee", role: "Planner" },
-  { name: "Hyun Kim", role: "Logistics" },
+  { name: "박민지", role: "구매" },
+  { name: "한은우", role: "품질" },
+  { name: "이지수", role: "기획" },
+  { name: "김현우", role: "물류" },
 ];
 
 const BRANCHES = ["B-001", "B-002", "B-003", "B-010", "B-015"];
@@ -96,7 +96,7 @@ export const orderDetailsById = new Map<number, OrderDetailResponse>(
           engineerRole: order.engineerRole,
           note:
             i % 7 === 0
-              ? "This order includes high priority items. Confirm delivery schedule with supplier."
+              ? "우선순위가 높은 품목이 포함되어 있습니다. 공급사 납기 일정을 확인하세요."
               : "",
           items,
         },

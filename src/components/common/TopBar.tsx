@@ -113,7 +113,7 @@ const RightActions = styled.div`
 `;
 
 const TopBar: React.FC = () => {
-  const [profile, setProfile] = useState(readCurrentUserFromToken());
+  const [, setProfile] = useState(readCurrentUserFromToken());
 
   useEffect(() => {
     const syncProfile = () => {

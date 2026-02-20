@@ -17,6 +17,10 @@ export const requestKeys = {
 const REQUEST_BASE_URL = ORDER_BASE_PATH;
 
 type QueryValue = string | number | boolean | undefined | null;
+type ActionResponse = {
+  message?: string;
+  success?: boolean;
+};
 
 function buildUrl(path: string, params?: Record<string, QueryValue>): string {
   const url = new URL(`${REQUEST_BASE_URL}${path}`);
@@ -110,7 +114,7 @@ export async function fetchOrderDetail(
 
 // 발주 반려
 export async function rejectOrder(orderId: number, note: string) {
-  return requestJson<any>(`/purchase-orders/${orderId}/reject`, {
+  return requestJson<ActionResponse>(`/purchase-orders/${orderId}/reject`, {
     method: "PATCH",
     body: JSON.stringify({ note }),
   });
@@ -118,7 +122,7 @@ export async function rejectOrder(orderId: number, note: string) {
 
 // 발주 승인
 export async function approveOrder(orderId: number, note: string) {
-  return requestJson<any>(`/purchase-orders/${orderId}/approve`, {
+  return requestJson<ActionResponse>(`/purchase-orders/${orderId}/approve`, {
     method: "PATCH",
     body: JSON.stringify({ note }),
   });

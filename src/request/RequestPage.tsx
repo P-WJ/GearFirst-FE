@@ -36,6 +36,9 @@ import type {
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function RequestPage() {
+  const toErrorMessage = (err: unknown, fallback: string) =>
+    err instanceof Error ? err.message : fallback;
+
   // 선택된 레코드 & 모달
   const [selectedRecord, setSelectedRecord] = useState<
     PendingOrderItem | ProcessedOrderItem | null
@@ -61,8 +64,8 @@ export default function RequestPage() {
       // 목록 새로고침
       queryClient.invalidateQueries({ queryKey: ["pending-orders"] });
       queryClient.invalidateQueries({ queryKey: ["processed-orders"] });
-    } catch (err: any) {
-      alert(err.response?.data?.message || "승인 요청 실패");
+    } catch (err: unknown) {
+      alert(toErrorMessage(err, "승인 요청 실패"));
     }
   };
 
@@ -79,8 +82,8 @@ export default function RequestPage() {
       // 목록 새로고침
       queryClient.invalidateQueries({ queryKey: ["pending-orders"] });
       queryClient.invalidateQueries({ queryKey: ["cancel-orders"] });
-    } catch (err: any) {
-      alert(err.response?.data?.message || "반려 요청 실패");
+    } catch (err: unknown) {
+      alert(toErrorMessage(err, "반려 요청 실패"));
     }
   };
   // 미승인 필터

@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Page from "../components/common/Page";
 import {
   SummaryGrid,
@@ -7,10 +8,11 @@ import {
   SummaryValue,
   SummaryNote,
 } from "../components/common/PageLayout";
-import { useQuery } from "@tanstack/react-query";
 import {
   fetchOutboundNotDoneRecords,
   fetchOutboundDoneRecords,
+  fetchOutboundCompletedRecords,
+  fetchOutboundDelayedRecords,
   outboundKeys,
 } from "./OutboundApi";
 import OutboundTable from "./components/OutboundTable";
@@ -34,7 +36,6 @@ type ListResponse<T> = {
 };
 
 export default function OutboundPage() {
-  // 공통 필터
   const [keywordNotDone, setKeywordNotDone] = useState("");
   const [startNotDone, setStartNotDone] = useState("");
   const [endNotDone, setEndNotDone] = useState("");
@@ -53,7 +54,6 @@ export default function OutboundPage() {
     dateTo: null,
   });
 
-  // 페이지네이션
   const pendingPagination = usePagination(1, 10);
   const donePagination = usePagination(1, 10);
 
@@ -69,7 +69,6 @@ export default function OutboundPage() {
     pageSize,
   });
 
-  // ✅ 출고 예정(Not Done)
   const paramsNotDone = buildParams(
     appliedNotDone,
     pendingPagination.page,
@@ -86,7 +85,6 @@ export default function OutboundPage() {
     placeholderData: (prev) => prev,
   });
 
-  // ✅ 출고 완료(Done)
   const paramsDone = buildParams(
     appliedDone,
     donePagination.page,
@@ -103,11 +101,58 @@ export default function OutboundPage() {
     placeholderData: (prev) => prev,
   });
 
-  // ✅ 상태
+  const summaryDoneParams = useMemo(
+    () => ({
+      q: appliedDone.keyword || undefined,
+      dateFrom: appliedDone.dateFrom || undefined,
+      dateTo: appliedDone.dateTo || undefined,
+      page: 1,
+      pageSize: 1,
+    }),
+    [appliedDone.keyword, appliedDone.dateFrom, appliedDone.dateTo]
+  );
+
+  const { data: dataCompletedSummary } = useQuery<
+    ListResponse<OutboundRecord[]>,
+    Error
+  >({
+    queryKey: [
+      ...outboundKeys.doneRecords,
+      "summary",
+      "completed",
+      summaryDoneParams,
+    ],
+    queryFn: () =>
+      fetchOutboundCompletedRecords({
+        ...summaryDoneParams,
+        status: "completed",
+      }),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev) => prev,
+  });
+
+  const { data: dataDelayedSummary } = useQuery<
+    ListResponse<OutboundRecord[]>,
+    Error
+  >({
+    queryKey: [
+      ...outboundKeys.doneRecords,
+      "summary",
+      "delayed",
+      summaryDoneParams,
+    ],
+    queryFn: () =>
+      fetchOutboundDelayedRecords({
+        ...summaryDoneParams,
+        status: "delayed",
+      }),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev) => prev,
+  });
+
   const isFetchingNotDone = fetchStatusNotDone === "fetching";
   const isFetchingDone = fetchStatusDone === "fetching";
 
-  // ✅ 데이터
   const recordsNotDone = dataNotDone?.data ?? [];
   const totalNotDone = dataNotDone?.meta?.total ?? 0;
   const totalPagesNotDone = dataNotDone?.meta?.totalPages ?? 1;
@@ -116,14 +161,9 @@ export default function OutboundPage() {
   const totalDone = dataDone?.meta?.total ?? 0;
   const totalPagesDone = dataDone?.meta?.totalPages ?? 1;
 
-  // ✅ 상태별 분류
-  const completedRecords = recordsDone.filter((r) => r.status === "COMPLETED");
-  const delayedRecords = recordsDone.filter((r) => r.status === "DELAYED");
+  const completedCount = dataCompletedSummary?.meta?.total ?? 0;
+  const delayedCount = dataDelayedSummary?.meta?.total ?? 0;
 
-  const completedCount = completedRecords.length;
-  const delayedCount = delayedRecords.length;
-
-  // ✅ 지표 계산
   const backlogQty = recordsNotDone.reduce(
     (sum, r) => sum + (r.totalQty ?? 0),
     0
@@ -133,7 +173,6 @@ export default function OutboundPage() {
       ? Math.round((completedCount / (totalDone + totalNotDone)) * 100)
       : 0;
 
-  // ✅ 검색 및 리셋
   const onSearchNotDone = () => {
     setAppliedNotDone({
       keyword: keywordNotDone.trim(),
@@ -168,7 +207,6 @@ export default function OutboundPage() {
     donePagination.resetPage();
   };
 
-  // ✅ 렌더
   return (
     <Page>
       <SummaryGrid>

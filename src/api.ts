@@ -28,7 +28,9 @@ export type ListResponse<T> = {
   };
 };
 
-export const BASE_URL = "http://34.120.215.23";
+const DEFAULT_API_BASE_URL = "http://localhost:8080";
+export const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL;
 export const WAREHOUSE_BASE_PATH = `${BASE_URL}/warehouse/api/v1`;
 export const INVENTORY_BASE_PATH = `${BASE_URL}/inventory/api/v1`;
 export const USER_BASE_PATH = `${BASE_URL}/user/api/v1`;

@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { refreshAccessToken } from "../auth/api/refreshToken";
 import { syncUserProfileFromToken } from "../auth/utils/userProfile";
+import { AUTH_BYPASS, ensureBypassAuth } from "../auth/utils/bypassAuth";
 
 type AuthStatus = "checking" | "authorized" | "unauthorized";
 
@@ -10,6 +11,13 @@ export default function RequireAuth() {
   const [status, setStatus] = useState<AuthStatus>("checking");
 
   useEffect(() => {
+    if (AUTH_BYPASS) {
+      const token = ensureBypassAuth();
+      syncUserProfileFromToken(token);
+      setStatus("authorized");
+      return;
+    }
+
     const token = sessionStorage.getItem("access_token");
     if (token) {
       syncUserProfileFromToken(token);
@@ -52,7 +60,7 @@ export default function RequireAuth() {
           color: "#4b5563",
         }}
       >
-        인증 정보를 확인하고 있습니다…
+        인증 정보를 확인하고 있습니다.
       </div>
     );
   }

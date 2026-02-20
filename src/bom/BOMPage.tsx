@@ -1,31 +1,26 @@
 import { useCallback, useMemo, useState } from "react";
-import Page from "../components/common/Page";
-import { Select } from "../components/common/PageLayout";
-import {
-  toBOMCreatePayload,
-  type BOMCreateDTO,
-  type BOMDTO, // 폼 모델(등록/수정 공용)
-  type BOMRecord, // 서버 응답 타입 (category: string)
-} from "./BOMTypes";
-import BOMTable from "./components/BOMTable";
-import {
-  useQuery,
-  useQueryClient,
-  useMutation,
-  type QueryKey,
-} from "@tanstack/react-query";
-import { addBOMMaterials, bomKeys, fetchBOMRecords } from "./BOMApi";
-import Button from "../components/common/Button";
-import BOMRegisterModal, {
-  type AddMaterialsPayload,
-} from "./components/BOMRegisterModal";
-import SearchBox from "../components/common/SearchBox";
-import DateRange from "../components/common/DateRange";
-import Pagination from "../components/common/Pagination";
+import { useMutation, useQuery, useQueryClient, type QueryKey } from "@tanstack/react-query";
 import type { ListResponse } from "../api";
+import Page from "../components/common/Page";
+import Button from "../components/common/Button";
+import DateRange from "../components/common/DateRange";
+import SearchBox from "../components/common/SearchBox";
+import Pagination from "../components/common/Pagination";
+import { Select } from "../components/common/PageLayout";
 import PageSection from "../components/common/sections/PageSection";
 import FilterResetButton from "../components/common/filters/FilterResetButton";
 import { usePagination } from "../hooks/usePagination";
+import { addBOMMaterials, bomKeys, fetchBOMRecords } from "./BOMApi";
+import {
+  toBOMCreatePayload,
+  type BOMCreateDTO,
+  type BOMDTO,
+  type BOMRecord,
+} from "./BOMTypes";
+import BOMTable from "./components/BOMTable";
+import BOMRegisterModal, {
+  type AddMaterialsPayload,
+} from "./components/BOMRegisterModal";
 
 type CateFilter = string | "ALL";
 
@@ -35,28 +30,23 @@ type AppliedFilters = {
   endDate: string | null;
 };
 
-// 예시 옵션 (자유 문자열이므로 나중에 서버 목록으로 대체 가능)
 const CATE_OPTIONS: CateFilter[] = ["ALL", "브레이크", "엔진"];
 
 export default function BOMPage() {
-  // 필터 상태
   const [cate, setCate] = useState<CateFilter>("ALL");
   const [keyword, setKeyword] = useState("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
-  // 검색 적용 상태
   const [applied, setApplied] = useState<AppliedFilters>({
     keyword: "",
     startDate: null,
     endDate: null,
   });
 
-  // 페이지네이션 (화면 1-based)
   const { page, pageSize, onChangePage, onChangePageSize, resetPage } =
     usePagination(1, 10);
 
-  // 등록 모달
   const [isRegOpen, setIsRegOpen] = useState(false);
   const [regMode, setRegMode] = useState<"create" | "edit">("create");
   const [initialForEdit, setInitialForEdit] = useState<BOMDTO | null>(null);
@@ -103,7 +93,6 @@ export default function BOMPage() {
   const total = data?.meta?.total ?? 0;
   const totalPages = data?.meta?.totalPages ?? 1;
 
-  // 핸들러
   const onSearch = useCallback(() => {
     setApplied({
       keyword: keyword.trim(),
@@ -122,12 +111,14 @@ export default function BOMPage() {
     setApplied({ keyword: "", startDate: null, endDate: null });
   }, [resetPage]);
 
-  const onChangeCate = useCallback((next: CateFilter) => {
-    setCate(next);
-    resetPage();
-  }, []);
+  const onChangeCate = useCallback(
+    (next: CateFilter) => {
+      setCate(next);
+      resetPage();
+    },
+    [resetPage]
+  );
 
-  // 생성
   const createMut = useMutation<{ ok: boolean }, Error, BOMCreateDTO>({
     mutationFn: addBOMMaterials,
     onSuccess: () => {
@@ -144,7 +135,7 @@ export default function BOMPage() {
       <Page>
         <PageSection
           title="BOM"
-          caption="자재 소요량 산출 및 계획을 관리합니다."
+          caption="자재 수요 예측 및 계획을 관리합니다."
           actions={
             <Button
               onClick={() => {
@@ -181,7 +172,7 @@ export default function BOMPage() {
                 onKeywordChange={setKeyword}
                 onSearch={onSearch}
                 onReset={onReset}
-                placeholder="부품코드 / 부품명 검색"
+                placeholder="부품코드/부품명 검색"
               />
             </>
           }

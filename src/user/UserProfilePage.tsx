@@ -1,10 +1,23 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { getUser, changePassword } from "./UserApi";
 import type { UserInfo } from "./UserTypes";
 import { parseJwt } from "../utils/parseJwt";
 import Layout from "../components/common/Layout";
 import Button from "../components/common/Button";
+import { AUTH_BYPASS } from "../auth/utils/bypassAuth";
+
+const BYPASS_USER: UserInfo = {
+  id: 1001,
+  name: "admin",
+  regionId: 1,
+  region: "서울",
+  workTypeId: 2,
+  workType: "본사",
+  rank: "관리자",
+  email: "admin@gearfirst.local",
+  phoneNum: "010-0000-0000",
+};
 
 export default function UserProfilePage() {
   const [user, setUser] = useState<UserInfo | null>(null);
@@ -15,15 +28,25 @@ export default function UserProfilePage() {
   const [confirmPw, setConfirmPw] = useState("");
 
   useEffect(() => {
+    if (AUTH_BYPASS) {
+      setUser(BYPASS_USER);
+      setLoading(false);
+      return;
+    }
+
     const token = sessionStorage.getItem("access_token");
     if (!token) {
       alert("로그인이 필요합니다.");
       window.location.href = "/";
       return;
     }
+
     const payload = parseJwt(token);
     const userId = Number(payload?.sub);
-    if (!userId) return;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
 
     getUser(userId).then((data) => {
       setUser(data);
@@ -32,7 +55,7 @@ export default function UserProfilePage() {
   }, []);
 
   const handleChangePassword = async () => {
-    if (!user) return;
+    if (!user || AUTH_BYPASS) return;
     if (!currentPw || !newPw || !confirmPw) {
       alert("모든 항목을 입력해주세요.");
       return;
@@ -255,7 +278,6 @@ const ButtonBox = styled.div`
 
 const StyledButton = styled(Button)`
   min-width: 130px;
-  padding: px 0;
   font-weight: 600;
   border-radius: 8px;
   font-size: 0.9rem;

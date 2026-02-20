@@ -1,48 +1,46 @@
-import {
+﻿import {
   generateCodeVerifier,
   generateCodeChallenge,
   generateState,
 } from "../utils/pkce";
 import { type JSX, useCallback, useEffect, useMemo, useState } from "react";
 import { resolveRedirectUri } from "../utils/redirectUri";
+import { AUTH_BYPASS, ensureBypassAuth } from "../utils/bypassAuth";
 
-const AUTH_SERVER =
-  import.meta.env.VITE_AUTH_SERVER ?? "http://34.120.215.23/auth";
+const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER ?? "";
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID ?? "gearfirst-client";
 const REDIRECT_URI = resolveRedirectUri(import.meta.env.VITE_REDIRECT_URI);
 
 function Login(): JSX.Element {
-  const [statusMessage, setStatusMessage] = useState(
-    "GearFirst 계정 확인 중입니다."
-  );
+  const [statusMessage, setStatusMessage] = useState("로그인 준비 중입니다.");
   const [subMessage, setSubMessage] = useState(
-    "안전한 로그인을 위해 브라우저를 잠시만 유지해 주세요."
+    "보안 로그인 페이지로 이동합니다.",
   );
 
   const handleLogin = useCallback(async (): Promise<void> => {
-    setStatusMessage("보안 토큰을 준비하고 있어요.");
+    if (AUTH_BYPASS) {
+      setStatusMessage("개발용 로그인 우회 모드");
+      setSubMessage("인증 서버 없이 대시보드로 이동합니다.");
+      ensureBypassAuth();
+      window.location.href = "/dashboard";
+      return;
+    }
 
-    console.log("🧩 [Login] verifier, state 생성 전");
+    if (!AUTH_SERVER) {
+      setStatusMessage("인증 서버 설정이 필요합니다.");
+      setSubMessage("VITE_AUTH_SERVER 환경변수를 확인해주세요.");
+      return;
+    }
+
+    setStatusMessage("보안 토큰을 생성하고 있습니다.");
+
     const verifier = generateCodeVerifier();
     const challenge = await generateCodeChallenge(verifier);
     const state = generateState();
-    console.log("🧩 생성:", { verifier, state });
 
     sessionStorage.setItem("pkce_verifier", verifier);
     sessionStorage.setItem("oauth_state", state);
-
-    console.log("💾 세션 저장 완료:", {
-      verifier: sessionStorage.getItem("pkce_verifier"),
-      state: sessionStorage.getItem("oauth_state"),
-    });
-
-    // const verifier = generateCodeVerifier();
-    // const challenge = await generateCodeChallenge(verifier);
-    // const state = generateState();
-
-    sessionStorage.setItem("pkce_verifier", verifier);
-    sessionStorage.setItem("oauth_state", state);
-    setSubMessage("인증 페이지를 불러오는 중입니다...");
+    setSubMessage("인증 페이지로 이동 중입니다...");
 
     const params = new URLSearchParams({
       response_type: "code",
@@ -54,7 +52,7 @@ function Login(): JSX.Element {
       state,
     });
 
-    window.location.href = `${AUTH_SERVER}/oauth2/authorize?${params}`;
+    window.location.href = `${AUTH_SERVER}/oauth2/authorize?${params.toString()}`;
   }, []);
 
   useEffect(() => {
@@ -71,7 +69,7 @@ function Login(): JSX.Element {
       animation: "gearfirst-login-spin 0.8s linear infinite",
       margin: "0 auto 20px",
     }),
-    []
+    [],
   );
 
   return (

@@ -6,7 +6,6 @@ import {
   type ApiResponse,
 } from "../../api";
 import type {
-  ServerPartCategory,
   ServerPartDetail,
   ServerPartListItem,
 } from "../../items/parts/PartTypes";
@@ -15,11 +14,16 @@ import {
   categoryDetails,
   categoryRecords,
   materialRecords,
-  partCategories,
   partDetails,
   partListItems,
 } from "../data/items.mock";
-import { normalizeQueryString, parseNumber, toApiResponse, toPaged } from "./utils";
+import {
+  normalizeQueryString,
+  parseDateValue,
+  parseNumber,
+  toApiResponse,
+  toPaged,
+} from "./utils";
 
 const INVENTORY_BASE = INVENTORY_BASE_PATH;
 const PARTS_BASE = `${WAREHOUSE_BASE_PATH}/parts`;
@@ -75,6 +79,8 @@ export const itemsHandlers = [
   http.get(`${INVENTORY_BASE}/getMaterialList`, ({ request }) => {
     const url = new URL(request.url);
     const keyword = normalizeQueryString(url, "keyword");
+    const startDate = normalizeQueryString(url, "startDate");
+    const endDate = normalizeQueryString(url, "endDate");
     const page = parseNumber(url.searchParams.get("page"), 0);
     const size = parseNumber(url.searchParams.get("size"), 20);
 
@@ -88,8 +94,26 @@ export const itemsHandlers = [
       );
     }
 
-    const pageData: ApiPage<any> = toPaged(rows, page, size);
-    const response: ApiResponse<ApiPage<any>> = toApiResponse(pageData);
+    let start = parseDateValue(startDate);
+    let end = parseDateValue(endDate);
+    if (start && end && start > end) {
+      const tmp = start;
+      start = end;
+      end = tmp;
+    }
+    if (start || end) {
+      rows = rows.filter((item) => {
+        const created = item.createdDate ? parseDateValue(item.createdDate) : null;
+        if (!created) return false;
+        const afterStart = start ? created >= start : true;
+        const beforeEnd = end ? created <= end : true;
+        return afterStart && beforeEnd;
+      });
+    }
+
+    const pageData: ApiPage<typeof rows[number]> = toPaged(rows, page, size);
+    const response: ApiResponse<ApiPage<typeof rows[number]>> =
+      toApiResponse(pageData);
     return HttpResponse.json(response);
   }),
 
@@ -124,9 +148,43 @@ export const itemsHandlers = [
     return HttpResponse.json(response);
   }),
 
-  http.get(`${PARTS_BASE}/categories`, () => {
+  http.get(`${PARTS_BASE}/categories`, ({ request }) => {
+    const url = new URL(request.url);
+    const keyword = normalizeQueryString(url, "keyword");
+    const startDate = normalizeQueryString(url, "startDate");
+    const endDate = normalizeQueryString(url, "endDate");
+
+    let rows = [...categoryRecords];
+
+    if (keyword) {
+      const lower = keyword.toLowerCase();
+      rows = rows.filter(
+        (item) =>
+          item.name.toLowerCase().includes(lower) ||
+          (item.description ?? "").toLowerCase().includes(lower)
+      );
+    }
+
+    let start = parseDateValue(startDate);
+    let end = parseDateValue(endDate);
+    if (start && end && start > end) {
+      const tmp = start;
+      start = end;
+      end = tmp;
+    }
+    if (start || end) {
+      rows = rows.filter((item) => {
+        const detail = categoryDetails.find((d) => String(d.id) === String(item.id));
+        const basis = parseDateValue(detail?.updatedAt ?? detail?.createdAt ?? null);
+        if (!basis) return false;
+        const afterStart = start ? basis >= start : true;
+        const beforeEnd = end ? basis <= end : true;
+        return afterStart && beforeEnd;
+      });
+    }
+
     const response: ApiResponse<typeof categoryRecords> =
-      toApiResponse(categoryRecords);
+      toApiResponse(rows);
     return HttpResponse.json(response);
   }),
 

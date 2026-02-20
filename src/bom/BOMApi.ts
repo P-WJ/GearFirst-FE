@@ -17,8 +17,8 @@ import {
 
 export const bomKeys = {
   records: ["bom", "records"] as const,
-  detail: (id: string) => ["bom", "detail", id] as const, // 목록 헤더(필요시)
-  materials: (id: string) => ["bom", "materials", id] as const, // 파트 자재
+  detail: (id: string) => ["bom", "detail", id] as const,
+  materials: (id: string) => ["bom", "materials", id] as const,
 };
 
 export type BOMListParams = {
@@ -26,22 +26,49 @@ export type BOMListParams = {
   category?: string | "ALL";
   startDate?: string | null;
   endDate?: string | null;
-  page?: number; // 화면 1-based
+  page?: number;
   pageSize?: number;
 };
+
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+
+function sanitizeDate(value?: string | null): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (DATE_REGEX.test(trimmed)) return trimmed;
+  const match = trimmed.match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : undefined;
+}
+
+function normalizeDateRange(params?: BOMListParams): {
+  startDate?: string;
+  endDate?: string;
+} {
+  let startDate = sanitizeDate(params?.startDate);
+  let endDate = sanitizeDate(params?.endDate);
+
+  if (startDate && endDate && startDate > endDate) {
+    const tmp = startDate;
+    startDate = endDate;
+    endDate = tmp;
+  }
+
+  return { startDate, endDate };
+}
 
 export async function fetchBOMRecords(
   params?: BOMListParams
 ): Promise<ListResponse<BOMRecord[]>> {
   const qs = new URLSearchParams();
+  const { startDate, endDate } = normalizeDateRange(params);
 
-  if (params?.category && params.category !== "ALL")
+  if (params?.category && params.category !== "ALL") {
     qs.set("category", params.category);
-  if (params?.startDate) qs.set("startDate", params.startDate);
-  if (params?.endDate) qs.set("endDate", params.endDate);
+  }
+  if (startDate) qs.set("startDate", startDate);
+  if (endDate) qs.set("endDate", endDate);
   if (params?.q?.trim()) qs.set("keyword", params.q.trim());
-  if (params?.page != null)
-    qs.set("page", String(Math.max(0, params.page - 1))); // 0-based
+  if (params?.page != null) qs.set("page", String(Math.max(0, params.page - 1)));
   if (params?.pageSize != null) qs.set("size", String(params.pageSize));
 
   const url = qs.toString()
@@ -61,7 +88,7 @@ export async function fetchBOMRecords(
     data: rows,
     meta: {
       total: page.totalElements,
-      page: (page.page ?? 0) + 1, // 다시 1-based로
+      page: (page.page ?? 0) + 1,
       pageSize: page.size,
       totalPages: page.totalPages,
     },

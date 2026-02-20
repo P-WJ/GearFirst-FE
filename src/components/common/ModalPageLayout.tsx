@@ -35,7 +35,16 @@ const StyledModalContainer = styled.div<ModalContainerStyleProps>`
   border-radius: 26px;
   border: 1px solid rgba(17, 17, 17, 0.06);
   box-shadow: 0 36px 70px rgba(10, 10, 15, 0.16);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  max-height: calc(100vh - 32px);
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
   animation: modalFade 0.25s ease-out;
 
   ${({ width }) =>
@@ -108,7 +117,11 @@ export const ModalContainerBase = StyledModalContainer;
 
 /* 모달 상단 헤더 */
 export const Header = styled.header`
+  position: sticky;
+  top: 0;
+  z-index: 2;
   padding: 1.55rem 2.1rem 1.1rem;
+  background: linear-gradient(155deg, #ffffff 0%, #f6f6f8 100%);
   border-bottom: 1px solid rgba(17, 17, 17, 0.06);
   display: flex;
   justify-content: space-between;

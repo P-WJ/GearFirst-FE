@@ -10,7 +10,7 @@ export const carModels: ServerCarModel[] = carModelNames.map((name, index) => ({
   id: index + 1,
   name,
   enabled: index % 5 !== 0,
-  note: index % 6 === 0 ? "Limited edition series" : undefined,
+  note: index % 6 === 0 ? "한정판 시리즈" : undefined,
   createdAt: isoDate(-200 + index * 5, 9),
   updatedAt: isoDate(-7 - (index % 8), 14),
 }));
@@ -26,7 +26,7 @@ export const partCarModelsByPartId = new Map<number, ServerPartCarModel[]>(
         carModelName: carModel.name,
         partId: Number(part.id),
         enabled: idx % 2 === 0,
-        note: idx % 3 === 0 ? "Primary fitment" : undefined,
+        note: idx % 3 === 0 ? "주요 적용 차종" : undefined,
         createdAt: isoDate(-30 + i, 10),
         updatedAt: isoDate(-3 - idx, 15),
       };

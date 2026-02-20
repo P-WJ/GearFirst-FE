@@ -55,12 +55,12 @@ const STATUSES: InboundDetailStatusRaw[] = [
 ];
 
 const SUPPLIERS = [
-  "Hyundai Steel",
-  "Mobis Parts",
-  "Daedong Logistics",
-  "Sejong Components",
-  "Daehan Molds",
-  "Korea Precision",
+  "현대철강",
+  "모비스부품",
+  "대동물류",
+  "세종컴포넌트",
+  "대한금형",
+  "코리아정밀",
 ];
 
 const WAREHOUSES = ["WH-A1", "WH-A2", "WH-B1", "WH-C1"];
@@ -127,12 +127,12 @@ export const inboundDetailsById = new Map<number, ServerInboundDetail>(
         requestedAt: item.requestedAt ?? isoDate(-25 + i, 9),
         expectedReceiveDate: item.expectedReceiveDate ?? null,
         receivedAt: item.completedAt,
-        inspectorName: i % 2 === 0 ? "Jamie Park" : "Alex Lee",
-        inspectorDept: i % 2 === 0 ? "QA" : "Warehouse",
+        inspectorName: i % 2 === 0 ? "박재민" : "이아람",
+        inspectorDept: i % 2 === 0 ? "품질팀" : "창고팀",
         inspectorPhone: i % 2 === 0 ? "010-5500-1200" : "010-7722-3322",
         remark:
           i % 7 === 0
-            ? "Inspection delayed due to minor packaging damage on arrival."
+            ? "입고 시 포장 손상으로 검수가 지연되었습니다."
             : "",
         lines,
       },

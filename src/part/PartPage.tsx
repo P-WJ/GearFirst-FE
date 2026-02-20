@@ -1,5 +1,4 @@
 import {
-  FilterGroup,
   SummaryGrid,
   SummaryCard,
   SummaryLabel,

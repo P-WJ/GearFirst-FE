@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 import {
   Overlay,
   ModalContainer,
@@ -14,18 +15,19 @@ import {
   Input,
   Value,
 } from "../../components/common/ModalPageLayout";
-import type { PurchasingRecord, MaterialItem } from "../PurchasingTypes";
 import Button from "../../components/common/Button";
 import SingleDatePicker from "../../components/common/SingleDatePicker";
-import styled from "styled-components";
 import MaterialSearchModal from "../../bom/components/MaterialSearchModal";
+import type { MaterialItem, PurchasingRecord } from "../PurchasingTypes";
 
 type Mode = "register" | "view" | "edit";
+
+type FormState = Omit<PurchasingRecord, "purchasingId">;
 
 interface PurchasingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: Omit<PurchasingRecord, "purchasingId">) => void;
+  onSubmit: (data: FormState) => void;
   initialData?: PurchasingRecord;
   mode: Mode;
 }
@@ -35,114 +37,105 @@ const Suffix = styled.span`
   color: #6b7280;
 `;
 
+const EMPTY_FORM: FormState = {
+  materialCode: "",
+  materialName: "",
+  materialId: undefined,
+  purchasingPrice: 0,
+  company: "",
+  surveyDate: "",
+  expiryDate: "",
+  requiredQuantityPerPeriod: 0,
+  requiredPeriodInDays: 0,
+  status: "등록",
+};
+
 export default function PurchasingModal({
   isOpen,
   onClose,
   onSubmit,
   initialData,
-  mode: initialMode = "register",
-  onDelete,
-}: PurchasingModalProps & { onDelete?: (id: string) => void }) {
-  const [mode, setMode] = useState<Mode>(initialMode);
-  const [isSearchModalOpen, setSearchModalOpen] = useState(false); // 검색 모달 제어
-  const [selectedMaterialId, setSelectedMaterialId] = useState<number | null>(
-    null
-  );
-  const [form, setForm] = useState<
-    PurchasingRecord | Omit<PurchasingRecord, "purchasingId">
-  >(() => {
-    if (initialData) return { ...initialData };
-    return {
-      materialCode: "",
-      materialName: "",
-      purchasingPrice: 0,
-      company: "",
-      surveyDate: "",
-      expiryDate: "",
-      requiredQuantityPerPeriod: 0,
-      requiredPeriodInDays: 0,
-      status: "등록" as const,
-    };
-  });
-
-  const readOnly = mode === "view";
+  mode,
+}: PurchasingModalProps) {
+  const [isSearchModalOpen, setSearchModalOpen] = useState(false);
+  const [form, setForm] = useState<FormState>(EMPTY_FORM);
 
   useEffect(() => {
-    if (isOpen) {
-      if (initialData) {
-        setForm(initialData); // 상세보기/수정용 초기 데이터
-        setMode("view"); // row 클릭 시 읽기 전용
-      } else {
-        setForm({
-          materialCode: "",
-          materialName: "",
-          purchasingPrice: 0,
-          company: "",
-          surveyDate: "",
-          expiryDate: "",
-          requiredQuantityPerPeriod: 0,
-          requiredPeriodInDays: 0,
-          status: "등록",
-        }); // 등록 모드 초기화
-        setMode("register");
-      }
+    if (!isOpen) return;
+    if (initialData) {
+      setForm({
+        materialId: initialData.materialId,
+        materialCode: initialData.materialCode,
+        materialName: initialData.materialName,
+        purchasingDate: initialData.purchasingDate,
+        company: initialData.company,
+        purchasingPrice: initialData.purchasingPrice,
+        surveyDate: initialData.surveyDate,
+        expiryDate: initialData.expiryDate,
+        status: initialData.status,
+        requiredQuantityPerPeriod: initialData.requiredQuantityPerPeriod,
+        requiredPeriodInDays: initialData.requiredPeriodInDays,
+        orderCnt: initialData.orderCnt,
+        createdAt: initialData.createdAt,
+      });
+      return;
     }
+    setForm(EMPTY_FORM);
   }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
-  /** 입력 핸들러 */
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]:
-        name.includes("Quantity") ||
-        name.includes("Price") ||
-        name.includes("Days")
-          ? Number(value)
-          : value,
-    }));
+  const readOnly = mode === "view";
+
+  const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  /** 자재 선택 시 */
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    const numericKeys = [
+      "purchasingPrice",
+      "requiredQuantityPerPeriod",
+      "requiredPeriodInDays",
+    ] as const;
+
+    if (numericKeys.includes(name as (typeof numericKeys)[number])) {
+      update(name as keyof FormState, Number(value) as FormState[keyof FormState]);
+      return;
+    }
+
+    update(name as keyof FormState, value as FormState[keyof FormState]);
+  };
+
   const handleSelectMaterial = (selected: MaterialItem) => {
-    setSelectedMaterialId(selected.id);
     setForm((prev) => ({
       ...prev,
+      materialId: selected.id,
       materialCode: selected.materialCode,
       materialName: selected.materialName,
     }));
   };
 
-  /** 저장 (등록) 버튼 */
   const handleSubmit = () => {
-    const required = [
-      "materialCode",
-      "materialName",
-      "purchasingPrice",
-      "company",
-      "surveyDate",
-      "expiryDate",
-      "requiredQuantityPerPeriod",
-      "requiredPeriodInDays",
+    const requiredFields = [
+      form.materialCode,
+      form.materialName,
+      form.company,
+      form.surveyDate,
+      form.expiryDate,
+      form.purchasingPrice,
+      form.requiredQuantityPerPeriod,
+      form.requiredPeriodInDays,
     ];
-    if (required.some((k) => !form[k as keyof typeof form])) {
-      alert("모든 항목을 입력해주세요.");
+
+    if (requiredFields.some((value) => value === "" || value === 0)) {
+      alert("모든 필수 항목을 입력해주세요.");
       return;
     }
 
-    onSubmit({
-      ...(form as Omit<PurchasingRecord, "purchasingId">),
-      materialId: selectedMaterialId ?? undefined,
-    });
-    onClose();
-  };
-  const handleDelete = () => {
-    if (!initialData) return; // 초기 등록 모드면 삭제 불가
-    if (onDelete) onDelete(initialData.purchasingId);
+    onSubmit(form);
     onClose();
   };
 
@@ -152,56 +145,26 @@ export default function PurchasingModal({
         <Header>
           <HeaderLeft>
             <Title>
-              구매 요청{" "}
-              {mode === "register" ? "등록" : mode === "edit" ? "수정" : "상세"}
+              구매 요청 {mode === "register" ? "등록" : mode === "edit" ? "수정" : "상세"}
             </Title>
           </HeaderLeft>
-          <CloseButton onClick={onClose}>×</CloseButton>
+          <CloseButton onClick={onClose}>&times;</CloseButton>
         </Header>
 
-        {/* 자재 기본 정보 */}
         <Section>
           <SectionTitle>자재 정보</SectionTitle>
           <DetailGrid $cols={3}>
-            {/* 자재명 */}
             <DetailItem>
               <Label>자재명</Label>
-              {readOnly ? (
-                <Value>{form.materialName}</Value>
-              ) : (
-                <Input value={form.materialName} readOnly />
-              )}
+              {readOnly ? <Value>{form.materialName || "-"}</Value> : <Input value={form.materialName} readOnly />}
             </DetailItem>
-
-            {/* 자재 코드 */}
             <DetailItem>
               <Label>자재 코드</Label>
-              {readOnly ? (
-                <Value>{form.materialCode}</Value>
-              ) : (
-                <Input value={form.materialCode} readOnly />
-              )}
+              {readOnly ? <Value>{form.materialCode || "-"}</Value> : <Input value={form.materialCode || ""} readOnly />}
             </DetailItem>
-
-            {/* 버튼 */}
-            <DetailItem
-              style={{
-                display: "flex",
-                alignItems: "flex-end",
-                justifyContent: "flex-end",
-              }}
-            >
+            <DetailItem style={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
               {!readOnly && (
-                <Button
-                  color="black"
-                  size="sm"
-                  onClick={() => setSearchModalOpen(true)}
-                  style={{
-                    padding: "6px 12px",
-                    height: "36px",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+                <Button color="black" size="sm" onClick={() => setSearchModalOpen(true)}>
                   자재 검색
                 </Button>
               )}
@@ -209,7 +172,6 @@ export default function PurchasingModal({
           </DetailGrid>
         </Section>
 
-        {/* 구매 정보 */}
         <Section>
           <SectionTitle>구매 정보</SectionTitle>
           <DetailGrid $cols={3}>
@@ -218,12 +180,7 @@ export default function PurchasingModal({
               {readOnly ? (
                 <Value>{form.purchasingPrice.toLocaleString()} 원</Value>
               ) : (
-                <Input
-                  type="number"
-                  name="purchasingPrice"
-                  value={form.purchasingPrice}
-                  onChange={handleChange}
-                />
+                <Input type="number" name="purchasingPrice" value={form.purchasingPrice} onChange={handleChange} />
               )}
             </DetailItem>
             <DetailItem>
@@ -231,17 +188,12 @@ export default function PurchasingModal({
               {readOnly ? (
                 <Value>{form.company}</Value>
               ) : (
-                <Input
-                  type="text"
-                  name="company"
-                  value={form.company}
-                  onChange={handleChange}
-                />
+                <Input type="text" name="company" value={form.company} onChange={handleChange} />
               )}
             </DetailItem>
-            <DetailItem></DetailItem>
+            <DetailItem />
             <DetailItem>
-              <Label>소요 수량</Label>
+              <Label>필요 수량</Label>
               {readOnly ? (
                 <Value>{form.requiredQuantityPerPeriod}</Value>
               ) : (
@@ -250,12 +202,11 @@ export default function PurchasingModal({
                   name="requiredQuantityPerPeriod"
                   value={form.requiredQuantityPerPeriod}
                   onChange={handleChange}
-                  readOnly={readOnly}
                 />
               )}
             </DetailItem>
             <DetailItem>
-              <Label>소요 기간(일)</Label>
+              <Label>필요 기간(일)</Label>
               {readOnly ? (
                 <Value>{form.requiredPeriodInDays}</Value>
               ) : (
@@ -264,28 +215,21 @@ export default function PurchasingModal({
                   name="requiredPeriodInDays"
                   value={form.requiredPeriodInDays}
                   onChange={handleChange}
-                  readOnly={readOnly}
                 />
               )}
             </DetailItem>
             {mode === "view" && (
-              <>
-                <DetailItem>
-                  <Label>1일 기준 소요량</Label>
-                  <Value>
-                    {Math.ceil(
-                      form.requiredQuantityPerPeriod /
-                        (form.requiredPeriodInDays || 1)
-                    )}
-                    <Suffix>/1일</Suffix>
-                  </Value>
-                </DetailItem>
-              </>
+              <DetailItem>
+                <Label>1일 기준 필요량</Label>
+                <Value>
+                  {Math.ceil(form.requiredQuantityPerPeriod / Math.max(1, form.requiredPeriodInDays))}
+                  <Suffix>/1일</Suffix>
+                </Value>
+              </DetailItem>
             )}
           </DetailGrid>
         </Section>
 
-        {/* 일정 관련 */}
         <Section style={{ paddingBottom: "20px" }}>
           <SectionTitle>일정 정보</SectionTitle>
           <DetailGrid $cols={3}>
@@ -296,9 +240,7 @@ export default function PurchasingModal({
               ) : (
                 <SingleDatePicker
                   value={form.surveyDate}
-                  onChange={(v) =>
-                    setForm((prev) => ({ ...prev, surveyDate: v }))
-                  }
+                  onChange={(value) => update("surveyDate", value)}
                   placeholder="조사일"
                 />
               )}
@@ -310,9 +252,7 @@ export default function PurchasingModal({
               ) : (
                 <SingleDatePicker
                   value={form.expiryDate}
-                  onChange={(v) =>
-                    setForm((prev) => ({ ...prev, expiryDate: v }))
-                  }
+                  onChange={(value) => update("expiryDate", value)}
                   placeholder="유효기간"
                   min={form.surveyDate}
                 />
@@ -321,62 +261,14 @@ export default function PurchasingModal({
           </DetailGrid>
         </Section>
 
-        {/* 하단 버튼 */}
         <Section style={{ textAlign: "center" }}>
-          {/* 등록 */}
-          {mode === "register" && (
-            <>
-              <Button
-                style={{
-                  marginRight: 8,
-                }}
-                color="black"
-                onClick={handleSubmit}
-              >
-                등록
-              </Button>
-              {/* <Button color="gray" onClick={onClose}>
-                취소
-              </Button> */}
-            </>
+          {mode !== "view" && (
+            <Button color="black" onClick={handleSubmit}>
+              {mode === "edit" ? "수정" : "등록"}
+            </Button>
           )}
-
-          {/* 상세 보기 */}
-          {/* {mode === "view" && (
-            <>
-              <Button
-                style={{
-                  marginRight: 8,
-                }}
-                color="black"
-                onClick={() => setMode("edit")}
-              >
-                수정
-              </Button>
-              <Button color="danger" onClick={handleDelete}>
-                삭제
-              </Button>
-            </>
-          )} */}
-
-          {/* 수정 */}
-          {/* {mode === "edit" && (
-            <>
-              <Button
-                style={{
-                  marginRight: 8,
-                }}
-                color="black"
-                onClick={handleSubmit}
-              >
-                저장
-              </Button>
-              <Button color="gray" onClick={onClose}>
-                취소
-              </Button>
-            </>
-          )}*/}
         </Section>
+
         <MaterialSearchModal
           isOpen={isSearchModalOpen}
           onClose={() => setSearchModalOpen(false)}
@@ -389,3 +281,4 @@ export default function PurchasingModal({
     </Overlay>
   );
 }
+

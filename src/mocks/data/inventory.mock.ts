@@ -14,7 +14,7 @@ export const inventoryOnHandRecords: PropertyRecord[] = range(24).map((i) => {
     id: 8000 + i,
     warehouseCode: pick(WAREHOUSES, i),
     warehouseId: `W-${(i % 5) + 1}`,
-    supplierName: i % 3 === 0 ? "Hyundai Steel" : "Mobis Parts",
+    supplierName: i % 3 === 0 ? "현대철강" : "모비스부품",
     onHandQty: qty,
     safetyStockQty,
     lowStock,

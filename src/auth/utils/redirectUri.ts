@@ -1,8 +1,8 @@
-const DEFAULT_LOCAL = "http://34.120.215.23/auth/callback";
+﻿const DEFAULT_PATH = "/auth/callback";
 
 function getOriginFallback(): string {
-  if (typeof window === "undefined") return DEFAULT_LOCAL;
-  return `${window.location.origin}/auth/callback`;
+  if (typeof window === "undefined") return DEFAULT_PATH;
+  return `${window.location.origin}${DEFAULT_PATH}`;
 }
 
 export function resolveRedirectUri(rawEnv?: string): string {

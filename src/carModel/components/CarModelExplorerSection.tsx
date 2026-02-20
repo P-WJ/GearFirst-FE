@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import styled from "styled-components";
 import Button from "../../components/common/Button";
 import SearchBox from "../../components/common/SearchBox";
@@ -11,9 +12,11 @@ import {
   Td,
   Th,
 } from "../../components/common/PageLayout";
+import PageSection from "../../components/common/sections/PageSection";
+import FilterResetButton from "../../components/common/filters/FilterResetButton";
+import { usePagination } from "../../hooks/usePagination";
 import { useCarModelSearch } from "../hooks/useCarModelSearch";
 import type { CarModelRecord, CarModelCreateDTO } from "../CarModelTypes";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   carModelPartKeys,
   createCarModel,
@@ -22,9 +25,6 @@ import {
   type CarModelPartListParams,
 } from "../CarModelApi";
 import CarModelRegisterModal from "./CarModelRegisterModal";
-import PageSection from "../../components/common/sections/PageSection";
-import FilterResetButton from "../../components/common/filters/FilterResetButton";
-import { usePagination } from "../../hooks/usePagination";
 
 const MODEL_PAGE_SIZE = 8;
 const PART_PAGE_SIZE = 10;
@@ -39,7 +39,23 @@ export default function CarModelExplorerSection() {
     keyword: "",
     status: "all" as StatusFilter,
   });
-  const modelPagination = usePagination(1, MODEL_PAGE_SIZE);
+
+  const {
+    page: modelPage,
+    pageSize: modelPageSize,
+    onChangePage: onChangeModelPage,
+    onChangePageSize: onChangeModelPageSize,
+    resetPage: resetModelPage,
+  } = usePagination(1, MODEL_PAGE_SIZE);
+
+  const {
+    page: partPage,
+    pageSize: partPageSize,
+    onChangePage: onChangePartPage,
+    onChangePageSize: onChangePartPageSize,
+    resetPage: resetPartPage,
+  } = usePagination(1, PART_PAGE_SIZE);
+
   const [isCarModelRegisterModalOpen, setIsCarModelRegisterModalOpen] =
     useState(false);
 
@@ -52,11 +68,11 @@ export default function CarModelExplorerSection() {
           : applied.status === "true"
           ? true
           : false,
-      page: modelPagination.page,
-      pageSize: modelPagination.pageSize,
+      page: modelPage,
+      pageSize: modelPageSize,
       sort: "name,asc",
     }),
-    [applied, modelPagination.page, modelPagination.pageSize]
+    [applied.keyword, applied.status, modelPage, modelPageSize]
   );
 
   const { data, fetchStatus } = useCarModelSearch({
@@ -65,7 +81,7 @@ export default function CarModelExplorerSection() {
     placeholderData: (prev) => prev,
   });
 
-  const models = data?.data ?? [];
+  const models = useMemo(() => data?.data ?? [], [data?.data]);
   const total = data?.meta?.total ?? 0;
   const totalPages = data?.meta?.totalPages ?? 1;
   const isFetching = fetchStatus === "fetching";
@@ -84,22 +100,21 @@ export default function CarModelExplorerSection() {
 
   const [partKeyword, setPartKeyword] = useState("");
   const [appliedPartKeyword, setAppliedPartKeyword] = useState("");
-  const partPagination = usePagination(1, PART_PAGE_SIZE);
 
   useEffect(() => {
     setPartKeyword("");
     setAppliedPartKeyword("");
-    partPagination.resetPage();
-  }, [selected?.id]);
+    resetPartPage();
+  }, [selected?.id, resetPartPage]);
 
   const partParams = useMemo<CarModelPartListParams>(
     () => ({
       name: appliedPartKeyword || undefined,
-      page: partPagination.page,
-      pageSize: partPagination.pageSize,
+      page: partPage,
+      pageSize: partPageSize,
       sort: "name,asc",
     }),
-    [appliedPartKeyword, partPagination.page, partPagination.pageSize]
+    [appliedPartKeyword, partPage, partPageSize]
   );
 
   const partQueryKey = useMemo(
@@ -122,25 +137,25 @@ export default function CarModelExplorerSection() {
 
   const onSearch = () => {
     setApplied({ keyword: keyword.trim(), status });
-    modelPagination.resetPage();
+    resetModelPage();
   };
 
   const onReset = () => {
     setKeyword("");
     setStatus("all");
     setApplied({ keyword: "", status: "all" });
-    modelPagination.resetPage();
+    resetModelPage();
   };
 
   const onSearchParts = () => {
     setAppliedPartKeyword(partKeyword.trim());
-    partPagination.resetPage();
+    resetPartPage();
   };
 
   const onResetParts = () => {
     setPartKeyword("");
     setAppliedPartKeyword("");
-    partPagination.resetPage();
+    resetPartPage();
   };
 
   const toggleModelMut = useMutation({
@@ -177,7 +192,7 @@ export default function CarModelExplorerSection() {
     const nextEnabled = !model.enabled;
     if (!nextEnabled) {
       const ok = window.confirm(
-        `"${model.name}" 모델을 비활성화하시겠어요?\n(활성 매핑이 있을 경우 취소될 수 있습니다.)`
+        `"${model.name}" 모델을 비활성화하시겠어요?\n(연결된 데이터가 있는 경우 일부 기능이 제한될 수 있습니다.)`
       );
       if (!ok) return;
     }
@@ -188,7 +203,7 @@ export default function CarModelExplorerSection() {
     <>
       <PageSection
         title="차량 모델별 적용 현황"
-        caption="좌측에서 모델을 선택하면 우측에서 적용된 부품 목록을 확인할 수 있습니다."
+        caption="왼쪽에서 모델을 선택하면 오른쪽에서 적용된 부품 목록을 확인할 수 있습니다."
         filters={
           <>
             <FilterResetButton onClick={onReset} />
@@ -198,7 +213,7 @@ export default function CarModelExplorerSection() {
                 const value = e.target.value as StatusFilter;
                 setStatus(value);
                 setApplied((prev) => ({ ...prev, status: value }));
-                modelPagination.resetPage();
+                resetModelPage();
               }}
               style={{ minWidth: 120 }}
             >
@@ -261,7 +276,7 @@ export default function CarModelExplorerSection() {
                       $active={selected?.id === model.id}
                       onClick={() => {
                         setSelected(model);
-                        partPagination.resetPage();
+                        resetPartPage();
                       }}
                     >
                       <Td>{model.id}</Td>
@@ -293,12 +308,12 @@ export default function CarModelExplorerSection() {
             </CenteredTable>
 
             <Pagination
-              page={modelPagination.page}
+              page={modelPage}
               totalPages={Math.max(1, totalPages)}
-              onChange={modelPagination.onChangePage}
+              onChange={onChangeModelPage}
               totalItems={total}
-              pageSize={modelPagination.pageSize}
-              onChangePageSize={modelPagination.onChangePageSize}
+              pageSize={modelPageSize}
+              onChangePageSize={onChangeModelPageSize}
               pageSizeOptions={[6, 8, 10]}
               align="center"
               showSummary={false}
@@ -361,19 +376,19 @@ export default function CarModelExplorerSection() {
                 </CenteredTable>
 
                 <Pagination
-                  page={partPagination.page}
+                  page={partPage}
                   totalPages={Math.max(1, partTotalPages)}
-                  onChange={partPagination.onChangePage}
+                  onChange={onChangePartPage}
                   totalItems={partTotal}
-                  pageSize={partPagination.pageSize}
-                  onChangePageSize={partPagination.onChangePageSize}
+                  pageSize={partPageSize}
+                  onChangePageSize={onChangePartPageSize}
                   pageSizeOptions={[10, 20, 50]}
                   align="center"
                   dense
                 />
               </div>
             ) : (
-              <EmptyState>좌측에서 차량 모델을 선택하세요.</EmptyState>
+              <EmptyState>왼쪽에서 차량 모델을 선택하세요.</EmptyState>
             )}
           </Pane>
         </ExplorerGrid>

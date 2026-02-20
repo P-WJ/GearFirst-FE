@@ -50,8 +50,11 @@ const DEFAULT_RANKS: Rank[] = [
   { rankId: 2, rankName: "LEADER" },
 ];
 
-const KO_TO_KEY = (v?: string) =>
-  v === "사원" ? "EMPLOYEE" : v === "팀장" ? "LEADER" : v ?? "EMPLOYEE";
+const KO_TO_KEY = (v?: string): "EMPLOYEE" | "LEADER" => {
+  if (v === "사원" || v === "EMPLOYEE") return "EMPLOYEE";
+  if (v === "리더" || v === "LEADER") return "LEADER";
+  return "EMPLOYEE";
+};
 
 type UserFormState = CreateUserDTO & { userId?: number };
 
@@ -68,8 +71,11 @@ export default function UserRegisterModal({
   const { data: regionRes } = useRegions(isOpen);
   const { data: workTypeRes } = useWorkTypes(isOpen);
 
-  const regions: Region[] = regionRes?.data ?? [];
-  const workTypes: WorkType[] = workTypeRes?.data ?? [];
+  const regions: Region[] = useMemo(() => regionRes?.data ?? [], [regionRes?.data]);
+  const workTypes: WorkType[] = useMemo(
+    () => workTypeRes?.data ?? [],
+    [workTypeRes?.data]
+  );
 
   const [form, setForm] = useState<UserFormState>({
     name: "",
@@ -109,13 +115,17 @@ export default function UserRegisterModal({
       personalEmail: initial?.personalEmail ?? "",
       email: initial?.email ?? "",
       phoneNum: initial?.phoneNum ?? "",
-      rank: KO_TO_KEY(initial?.rank) as "EMPLOYEE" | "LEADER",
+      rank: KO_TO_KEY(initial?.rank),
       regionId,
       workTypeId,
       userId: initial?.id ?? undefined,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, initial?.id]);
+  }, [
+    isOpen,
+    initial,
+    regions,
+    workTypes,
+  ]);
 
   useEffect(() => {
     if (!isOpen || regions.length === 0) return;
@@ -178,7 +188,9 @@ export default function UserRegisterModal({
       onClose();
     } catch (err: unknown) {
       setError(
-        err instanceof Error ? err.message : "요청 처리 중 오류가 발생했습니다."
+        err instanceof Error
+          ? err.message
+          : "요청 처리 중 오류가 발생했습니다."
       );
     } finally {
       setBusy(false);
@@ -193,7 +205,7 @@ export default function UserRegisterModal({
         loading={busy}
       >
         <Header>
-          <Title>{isEdit ? "사용자 수정" : "회원가입"}</Title>
+          <Title>{isEdit ? "사용자 수정" : "인원 등록"}</Title>
           <CloseButton onClick={onClose}>&times;</CloseButton>
         </Header>
 
@@ -211,7 +223,7 @@ export default function UserRegisterModal({
               </DetailItem>
 
               <DetailItem>
-                <Label> 회원직급</Label>
+                <Label>직급</Label>
                 <Select
                   value={form.rank}
                   onChange={(e) =>
@@ -222,7 +234,7 @@ export default function UserRegisterModal({
                     <option key={r.rankId} value={r.rankName}>
                       {r.rankName === "EMPLOYEE"
                         ? "사원 (EMPLOYEE)"
-                        : "팀장 (LEADER)"}
+                        : "리더 (LEADER)"}
                     </option>
                   ))}
                 </Select>
@@ -242,7 +254,7 @@ export default function UserRegisterModal({
               )}
 
               <DetailItem>
-                <Label>이메일</Label>
+                <Label>회사 이메일</Label>
                 <Input
                   type="email"
                   value={form.email}
@@ -268,7 +280,7 @@ export default function UserRegisterModal({
                   value={String(form.regionId || "")}
                   onChange={(e) => update("regionId", Number(e.target.value))}
                 >
-                  {!regions.length && <option value="">지역 로딩 중…</option>}
+                  {!regions.length && <option value="">지역 로딩 중...</option>}
                   {!!regions.length && <option value="">지역 선택</option>}
                   {regions.map((r) => (
                     <option key={r.regionId} value={r.regionId}>
@@ -279,13 +291,15 @@ export default function UserRegisterModal({
               </DetailItem>
 
               <DetailItem>
-                <Label>지점</Label>
+                <Label>직무 유형</Label>
                 <Select
                   value={String(form.workTypeId || "")}
                   onChange={(e) => update("workTypeId", Number(e.target.value))}
                 >
-                  {!workTypes.length && <option value="">지점 로딩 중…</option>}
-                  {!!workTypes.length && <option value="">지점 선택</option>}
+                  {!workTypes.length && (
+                    <option value="">직무 유형 로딩 중...</option>
+                  )}
+                  {!!workTypes.length && <option value="">직무 유형 선택</option>}
                   {workTypes.map((w) => (
                     <option key={w.workTypeId} value={w.workTypeId}>
                       {w.workTypeName}
@@ -305,8 +319,8 @@ export default function UserRegisterModal({
             <Button type="submit" color="black" disabled={!canSubmit || busy}>
               {busy
                 ? isEdit
-                  ? "저장 중…"
-                  : "등록 중…"
+                  ? "수정 중..."
+                  : "등록 중..."
                 : isEdit
                 ? "변경 저장"
                 : "등록"}

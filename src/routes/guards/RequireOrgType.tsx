@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from "react";
+﻿import type { ReactElement, ReactNode } from "react";
 import {
   useOrgTypeGuard,
   type OrgType,
@@ -15,7 +15,7 @@ export default function RequireOrgType({ required, children }: Props) {
   if (status === "checking" || status === "idle") {
     return (
       <Splash>
-        <p>권한을 확인하고 있습니다…</p>
+        <p>권한을 확인하고 있습니다.</p>
       </Splash>
     );
   }
@@ -27,13 +27,10 @@ export default function RequireOrgType({ required, children }: Props) {
   if (status === "forbidden") {
     return (
       <Splash>
-        <h2>접근 권한이 없습니다</h2>
-        <p>요청한 페이지는 {required} 권한 사용자만 이용할 수 있어요.</p>
+        <h2>접근 권한이 없습니다.</h2>
+        <p>요청한 페이지는 {required} 권한 사용자만 접근할 수 있습니다.</p>
         <div>
-          {/* <ActionButton onClick={() => forceLogout("https://gearfirst-fe.vercel.app/")}> */}
-          <ActionButton onClick={() => forceLogout("http://localhost:5173/")}>
-            로그인 이동
-          </ActionButton>
+          <ActionButton onClick={() => forceLogout("/")}>로그인 화면으로</ActionButton>
         </div>
       </Splash>
     );
@@ -43,7 +40,7 @@ export default function RequireOrgType({ required, children }: Props) {
     return (
       <Splash>
         <h2>권한 확인 실패</h2>
-        <p>{error ?? "권한을 확인하는 중 오류가 발생했습니다."}</p>
+        <p>{error ?? "권한 확인 중 오류가 발생했습니다."}</p>
         <div>
           <ActionButton onClick={() => window.location.reload()}>
             다시 시도
@@ -53,8 +50,7 @@ export default function RequireOrgType({ required, children }: Props) {
     );
   }
 
-  // forceLogout("https://gearfirst-fe.vercel.app/login");
-  forceLogout("http://localhost:5173/login");
+  forceLogout("/login");
 
   return null;
 }

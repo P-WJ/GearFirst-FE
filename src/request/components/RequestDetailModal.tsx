@@ -88,7 +88,10 @@ const DetailModal = ({
 
   useEffect(() => {
     if (isOpen && record) {
-      setRemark((record as any).remarks || "");
+      const withRemark = record as (PendingOrderItem | ProcessedOrderItem) & {
+        remarks?: string;
+      };
+      setRemark(withRemark.remarks ?? "");
     }
   }, [isOpen, record]);
 
@@ -223,7 +226,7 @@ const DetailModal = ({
                     </Td>
                   </tr>
                 ) : detail?.data?.items?.length ? (
-                  detail.data.items.map((item: any, idx: number) => (
+                  detail.data.items.map((item, idx: number) => (
                     <tr
                       key={idx}
                       style={{

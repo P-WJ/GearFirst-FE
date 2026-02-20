@@ -73,12 +73,6 @@ export default function PartTable({ rows }: { rows: PartRecord[] }) {
   };
 
   const numberFormatter = new Intl.NumberFormat("ko-KR");
-  const formatDate = (value?: string) => {
-    if (!value) return "—";
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value.slice(0, 10);
-    return date.toLocaleDateString();
-  };
 
   return (
     <>

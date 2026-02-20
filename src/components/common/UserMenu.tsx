@@ -6,16 +6,16 @@ import {
   useSyncExternalStore,
 } from "react";
 import styled, { keyframes } from "styled-components";
+import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import { logout } from "../../auth/api/logout";
 import {
   getUserProfile,
   subscribeToUserProfile,
 } from "../../auth/store/userStore";
-import { useNavigate } from "react-router-dom";
 
 type Props = {
-  displayName?: string; // 기본 로그인 사용자
+  displayName?: string;
   email?: string;
 };
 
@@ -33,17 +33,16 @@ export default function UserMenu({ displayName = "사용자" }: Props) {
 
   const close = useCallback(() => setOpen(false), []);
 
-  // 외부 클릭 닫기
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node))
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         close();
+      }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [close]);
 
-  // ESC 닫기
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
@@ -53,12 +52,12 @@ export default function UserMenu({ displayName = "사용자" }: Props) {
   }, [close]);
 
   const handleProfile = () => {
-    close(); // 메뉴 닫기
-    navigate("/profile"); // 프로필 페이지로 이동
+    close();
+    navigate("/profile");
   };
 
   const handleLogout = async () => {
-    if (confirm("로그아웃하시겠습니까?")) await logout();
+    if (confirm("로그아웃 하시겠습니까?")) await logout();
   };
 
   const initials = getInitials(effectiveName);
@@ -116,8 +115,6 @@ export default function UserMenu({ displayName = "사용자" }: Props) {
     </Wrapper>
   );
 }
-
-/* ========== styled ========== */
 
 const Wrapper = styled.div`
   position: relative;
@@ -237,7 +234,6 @@ const MenuItem = styled(Button)<{ $danger?: boolean }>`
   justify-content: flex-start;
   border-radius: 10px;
   background: transparent;
-
   color: ${({ $danger }) => ($danger ? "#dc2626" : "#374151")};
   padding: 10px 12px;
 
@@ -246,13 +242,9 @@ const MenuItem = styled(Button)<{ $danger?: boolean }>`
   }
 `;
 
-/* ========== utils ========== */
-
 function getInitials(name: string): string {
-  // 한글/영문 섞여도 앞 글자 2개 정도를 이니셜로
-  const trimmed = name.replace(/님$/, "").trim();
+  const trimmed = name.trim();
   if (!trimmed) return "U";
-  // 공백 기준 분리 후 앞글자 조합
   const parts = trimmed.split(/\s+/);
   const first = parts[0]?.[0] ?? "";
   const second = parts[1]?.[0] ?? "";

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+﻿import { useQuery } from "@tanstack/react-query";
 import {
   fetchPendingOrders,
   fetchProcessedOrders,
@@ -128,24 +128,23 @@ export function useDashboardData() {
       const sorted = [...items].sort((a, b) => valueOf(b) - valueOf(a));
       const assetValue = items.reduce(
         (acc, item) => acc + (item.partPrice ?? 0) * (item.partQuantity ?? 0),
-        0
+        0,
       );
       const totalQty = items.reduce(
         (acc, item) => acc + (item.partQuantity ?? 0),
-        0
+        0,
       );
 
       const top10Value = sorted
         .slice(0, 10)
         .reduce(
           (acc, i) => acc + (i.partPrice ?? 0) * (i.partQuantity ?? 0),
-          0
+          0,
         );
       const top10Share = assetValue
         ? Math.round((top10Value / assetValue) * 100)
         : 0;
 
-      // ABC 분류 (누적 80%: A, 95%: B, 나머지: C)
       let cum = 0;
       let a = 0,
         b = 0,
@@ -159,7 +158,6 @@ export function useDashboardData() {
         else c++;
       });
 
-      // 창고별 분포 계산
       const warehouseMap = new Map<
         string,
         { value: number; assetValue: number }
@@ -194,7 +192,7 @@ export function useDashboardData() {
         top10Share, // %
         abc: { a, b, c },
         warehouseDistribution,
-        rawItems: items, // 원본 데이터도 함께 반환
+        rawItems: items,
       };
     },
     staleTime: 5 * 60 * 1000,
@@ -216,7 +214,7 @@ export function useDashboardData() {
     queryFn: () =>
       fetchOutboundNotDoneRecords({
         page: 1,
-        pageSize: 100, // SLA 계산을 위해 더 많은 데이터 필요
+        pageSize: 100,
       }),
     select: (res) => ({
       total: res.meta?.total ?? 0,
@@ -225,7 +223,6 @@ export function useDashboardData() {
     staleTime: 60 * 1000,
   });
 
-  // 전체 재고 데이터 (비활성 재고 및 안전재고 계산용)
   const allInventoryData = useQuery({
     queryKey: ["dashboard", "inventory", "all"],
     queryFn: () =>
@@ -234,14 +231,13 @@ export function useDashboardData() {
         partKeyword: "",
         supplierName: "",
         page: 0,
-        size: 1000, // 전체 재고 확인
+        size: 1000,
       }),
     select: (res) => {
       const items: InventoryPartRecord[] = extractInventoryItems(res);
       const now = new Date();
       const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-      // 비활성 재고 계산
       let inactiveCount = 0;
       items.forEach((item: InventoryPartRecord) => {
         const dateString = item.lastUpdatedAt ?? item.updatedAt;
@@ -252,7 +248,6 @@ export function useDashboardData() {
         }
       });
 
-      // 안전재고 위험 계산
       const warehouseMap = new Map<
         string,
         {
@@ -294,7 +289,6 @@ export function useDashboardData() {
         const ratioRaw = safety > 0 ? (current / safety) * 100 : 0;
         const ratio = Math.max(0, Math.round(ratioRaw));
 
-        // 창고별 집계
         const warehouse = warehouseMap.get(warehouseCode) || {
           critical: 0,
           warning: 0,
@@ -305,7 +299,6 @@ export function useDashboardData() {
         warehouse.total++;
 
         if (current <= safety) {
-          // 안전재고 이하 (위험)
           warehouse.critical++;
           totalCritical++;
           riskItems.push({
@@ -318,7 +311,6 @@ export function useDashboardData() {
             severity: "high",
           });
         } else if (current <= safety * 1.2) {
-          // 안전재고의 120% 이하 (주의)
           warehouse.warning++;
           totalWarning++;
           riskItems.push({
@@ -338,7 +330,6 @@ export function useDashboardData() {
         warehouseMap.set(warehouseCode, warehouse);
       });
 
-      // 위험 항목을 비율 순으로 정렬 (낮은 순)
       riskItems.sort((a, b) => a.ratio - b.ratio);
 
       const warehouseSummary = Array.from(warehouseMap.entries())
@@ -367,7 +358,6 @@ export function useDashboardData() {
     staleTime: 5 * 60 * 1000,
   });
 
-  // 하위 호환성을 위한 별도 쿼리 (기존 코드 유지)
   const inactiveStockData = useQuery({
     queryKey: ["dashboard", "inventory", "inactive-stock"],
     queryFn: () =>
@@ -442,9 +432,26 @@ export function useDashboardData() {
 }
 
 export async function fetchPods(namespace: string = "default") {
-  const res = await fetch(`/notification/k8s/pods/list?namespace=${namespace}`);
-  if (!res.ok) {
-    throw new Error("Failed to fetch pods");
+  // 개발/우회 모드에서는 프록시 호출 자체를 생략합니다.
+  if (import.meta.env.DEV || import.meta.env.VITE_AUTH_BYPASS === "true") {
+    return [
+      { name: "api-gateway-0", phase: "Running" },
+      { name: "inventory-service-0", phase: "Running" },
+      { name: "order-service-0", phase: "Running" },
+    ];
   }
-  return res.json();
+
+  try {
+    const res = await fetch(
+      `/notification/k8s/pods/list?namespace=${namespace}`,
+    );
+    if (res.ok) {
+      const payload = (await res.json()) as unknown;
+      if (Array.isArray(payload)) return payload;
+    }
+  } catch {
+    // fallback으로 처리
+  }
+
+  throw new Error("Failed to fetch pods");
 }

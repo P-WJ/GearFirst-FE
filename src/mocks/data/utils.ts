@@ -14,7 +14,7 @@ export function dateOnly(daysOffset: number): string {
   return formatDate(d);
 }
 
-export function pick<T>(arr: T[], index: number): T {
+export function pick<T>(arr: readonly T[], index: number): T {
   return arr[Math.abs(index) % arr.length];
 }
 

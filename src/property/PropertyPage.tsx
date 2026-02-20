@@ -11,7 +11,6 @@ import PropertyTable from "./components/PropertyTable";
 import { fetchPropertyRecords } from "./PropertyApi";
 import type { PropertyResponse } from "./PropertyTypes";
 import SearchBox from "../components/common/SearchBox";
-import Button from "../components/common/Button";
 import Pagination from "../components/common/Pagination";
 import Page from "../components/common/Page";
 import PageSection from "../components/common/sections/PageSection";

@@ -1,22 +1,21 @@
-import React, { useEffect, useMemo, useState, type JSX, useRef } from "react";
+﻿import React, { useEffect, useMemo, useState, type JSX, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import type { TokenResponse } from "../types/auth";
 import { syncUserProfileFromToken } from "../utils/userProfile";
 import { resolveRedirectUri } from "../utils/redirectUri";
+import { AUTH_BYPASS, ensureBypassAuth } from "../utils/bypassAuth";
 
-const AUTH_SERVER =
-  import.meta.env.VITE_AUTH_SERVER ?? "http://34.120.215.23/auth";
+const AUTH_SERVER = import.meta.env.VITE_AUTH_SERVER ?? "";
 const CLIENT_ID = import.meta.env.VITE_CLIENT_ID ?? "gearfirst-client";
 const REDIRECT_URI = resolveRedirectUri(import.meta.env.VITE_REDIRECT_URI);
-const CLIENT_SECRET = import.meta.env.VITE_CLIENT_SECRET ?? "secret";
 
 type Status = "loading" | "success" | "error";
 
 function AuthCallback(): JSX.Element {
   const [status, setStatus] = useState<Status>("loading");
-  const [message, setMessage] = useState("로그인 중입니다...");
+  const [message, setMessage] = useState("로그인 처리 중입니다...");
   const [detail, setDetail] = useState(
-    "계정을 확인하고 있으니 잠시만 기다려 주세요."
+    "계정 정보를 확인하고 있습니다. 잠시만 기다려주세요.",
   );
   const navigate = useNavigate();
   const redirectTimeoutRef = useRef<number | undefined>(undefined);
@@ -25,11 +24,24 @@ function AuthCallback(): JSX.Element {
     let cancelled = false;
 
     const handleAuth = async (): Promise<void> => {
-      console.log("🚀 [AuthCallback] 시작됨");
-      console.log("AUTH_SERVER:", AUTH_SERVER);
-      console.log("CLIENT_ID:", CLIENT_ID);
-      console.log("REDIRECT_URI:", REDIRECT_URI);
-      console.log("CLIENT_SECRET 존재:", !!CLIENT_SECRET);
+      if (AUTH_BYPASS) {
+        ensureBypassAuth();
+        if (cancelled) return;
+        setStatus("success");
+        setMessage("개발용 로그인 우회");
+        setDetail("인증 서버 없이 대시보드로 이동합니다...");
+        redirectTimeoutRef.current = window.setTimeout(() => {
+          navigate("/dashboard", { replace: true });
+        }, 300);
+        return;
+      }
+
+      if (!AUTH_SERVER) {
+        setStatus("error");
+        setMessage("인증 서버 설정이 필요합니다.");
+        setDetail("VITE_AUTH_SERVER 환경변수를 확인해주세요.");
+        return;
+      }
 
       try {
         const params = new URLSearchParams(window.location.search);
@@ -38,61 +50,43 @@ function AuthCallback(): JSX.Element {
         const savedState = sessionStorage.getItem("oauth_state");
         const verifier = sessionStorage.getItem("pkce_verifier");
 
-        console.log("🔹 URL Params:", window.location.search);
-        console.log("🔹 code:", code);
-        console.log("🔹 returnedState:", returnedState);
-        console.log("🔹 savedState:", savedState);
-        console.log("🔹 verifier:", verifier);
-
         sessionStorage.removeItem("oauth_state");
         sessionStorage.removeItem("pkce_verifier");
 
         if (!returnedState || returnedState !== savedState) {
-          console.error("❌ 상태 불일치 또는 누락");
           setStatus("error");
-          setMessage("보안 오류가 감지되었습니다.");
-          setDetail("다시 로그인 페이지에서 시도해 주세요.");
+          setMessage("보안 검증에 실패했습니다.");
+          setDetail("로그인 페이지에서 다시 시도해주세요.");
           return;
         }
+
         if (!code || !verifier) {
-          console.error("❌ code 또는 verifier 누락");
           setStatus("error");
-          setMessage("필수 인증 값이 없습니다.");
-          setDetail("브라우저 새로고침 후 재시도해 주세요.");
+          setMessage("인증 코드가 유효하지 않습니다.");
+          setDetail("브라우저를 새로고침 후 다시 시도해주세요.");
           return;
         }
 
         setMessage("토큰을 발급받고 있습니다...");
-
-        const basicAuth = btoa(`${CLIENT_ID}:${CLIENT_SECRET}`);
-        console.log("🔐 basicAuth:", basicAuth);
 
         const body = new URLSearchParams({
           grant_type: "authorization_code",
           code,
           redirect_uri: REDIRECT_URI,
           code_verifier: verifier,
+          client_id: CLIENT_ID,
         });
 
-        console.log("📦 Token 요청 body:", Object.fromEntries(body.entries()));
-
-        const tokenUrl = `${AUTH_SERVER}/oauth2/token`;
-        console.log("🌐 요청 URL:", tokenUrl);
-
-        const res = await fetch(tokenUrl, {
+        const res = await fetch(`${AUTH_SERVER}/oauth2/token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
-            Authorization: `Basic ${basicAuth}`,
           },
           body,
         });
 
-        console.log("📥 응답 상태:", res.status, res.statusText);
-
         if (!res.ok) {
           const text = await res.text();
-          console.error("❌ 응답 실패:", res.status, text);
           setStatus("error");
           setMessage("로그인에 실패했습니다.");
           setDetail(`${res.status} ${text}`);
@@ -100,47 +94,35 @@ function AuthCallback(): JSX.Element {
         }
 
         const data = (await res.json()) as TokenResponse;
-        console.log("✅ 응답 JSON:", data);
 
         if (!data.access_token) {
-          console.error("❌ access_token 없음");
           setStatus("error");
           setMessage("로그인에 실패했습니다.");
           setDetail("access_token이 응답에 없습니다.");
           return;
         }
 
-        console.log("💾 access_token 저장");
         sessionStorage.setItem("access_token", data.access_token);
         if (data.refresh_token) {
-          console.log("💾 refresh_token 저장");
           localStorage.setItem("refresh_token", data.refresh_token);
         }
 
-        console.log("👤 사용자 프로필 동기화 시작");
         syncUserProfileFromToken(data.access_token);
-        console.log("👤 사용자 프로필 동기화 완료");
 
-        if (cancelled) {
-          console.warn("⚠️ useEffect cleanup으로 중단됨");
-          return;
-        }
+        if (cancelled) return;
 
-        console.log("🎉 로그인 성공 - 대시보드로 이동 예정");
         setStatus("success");
-        setMessage("로그인 성공!");
-        setDetail("대시보드로 이동하고 있습니다...");
+        setMessage("로그인 성공");
+        setDetail("대시보드로 이동합니다...");
 
         redirectTimeoutRef.current = window.setTimeout(() => {
-          console.log("➡️ navigate(/dashboard)");
           navigate("/dashboard", { replace: true });
         }, 700);
-      } catch (e) {
-        console.error("💥 예외 발생:", e);
+      } catch {
         if (!cancelled) {
           setStatus("error");
           setMessage("로그인 처리 중 오류가 발생했습니다.");
-          setDetail("네트워크 상태를 확인한 뒤 다시 시도해 주세요.");
+          setDetail("네트워크 상태를 확인하고 다시 시도해주세요.");
         }
       }
     };
@@ -148,15 +130,12 @@ function AuthCallback(): JSX.Element {
     void handleAuth();
 
     return () => {
-      console.log("🧹 cleanup 실행");
       cancelled = true;
       if (redirectTimeoutRef.current) {
         clearTimeout(redirectTimeoutRef.current);
       }
     };
   }, [navigate]);
-
-  // ---------------------------- UI 구성 ----------------------------
 
   const spinnerStyles = useMemo(
     () => ({
@@ -168,7 +147,7 @@ function AuthCallback(): JSX.Element {
       animation: "gearfirst-login-spin 0.85s linear infinite",
       margin: "0 auto 20px",
     }),
-    []
+    [],
   );
 
   const successStyles = useMemo(
@@ -184,7 +163,7 @@ function AuthCallback(): JSX.Element {
       fontSize: "22px",
       border: "2px solid rgba(34,197,94,0.3)",
     }),
-    []
+    [],
   );
 
   const errorStyles = useMemo(
@@ -200,7 +179,7 @@ function AuthCallback(): JSX.Element {
       fontSize: "22px",
       border: "2px solid rgba(239,68,68,0.25)",
     }),
-    []
+    [],
   );
 
   const indicator =

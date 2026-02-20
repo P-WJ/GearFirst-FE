@@ -1,4 +1,4 @@
-﻿import { http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw";
 import {
   WAREHOUSE_BASE_PATH,
   type ApiResponse,
@@ -57,8 +57,24 @@ export const vehicleHandlers = [
     const url = new URL(request.url);
     const page = parseNumber(url.searchParams.get("page"), 0);
     const size = parseNumber(url.searchParams.get("size"), 10);
+    const name = normalizeQueryString(url, "name");
+    const code = normalizeQueryString(url, "code");
+    const categoryId = normalizeQueryString(url, "categoryId");
     const carModelId = Number(params.carModelId);
-    const items = carModelPartsByCarModelId.get(carModelId) ?? [];
+
+    let items = carModelPartsByCarModelId.get(carModelId) ?? [];
+
+    if (name) {
+      const lower = name.toLowerCase();
+      items = items.filter((item) => (item.name ?? "").toLowerCase().includes(lower));
+    }
+    if (code) {
+      const lower = code.toLowerCase();
+      items = items.filter((item) => (item.code ?? "").toLowerCase().includes(lower));
+    }
+    if (categoryId) {
+      items = items.filter((item) => String(item.category?.id ?? "") === categoryId);
+    }
 
     const pageData: ApiPage<ServerCarModelPart> = toPaged(items, page, size);
     const response: ApiResponse<ApiPage<ServerCarModelPart>> = toApiResponse(pageData);

@@ -82,7 +82,6 @@ export default function CategoryPage() {
 
   const isFetching = fetchStatus === "fetching";
   const records = data?.data ?? [];
-  const total = data?.meta?.total ?? 0;
   const totalPages = data?.meta?.totalPages ?? 1;
 
   const onSearch = useCallback(() => {

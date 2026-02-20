@@ -174,7 +174,7 @@ export const NotificationList: React.FC = () => {
       es.close();
       eventSourceRef.current = null;
     };
-  }, []);
+  }, [isMock]);
 
   // 외부 클릭 시 닫기
   useEffect(() => {
