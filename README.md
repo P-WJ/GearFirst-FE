@@ -1,111 +1,84 @@
-﻿# GearFirst Frontend
+﻿# GearFirst Frontend 🚗
 
-자동차 부품 조달/재고/입출고 운영을 위한 프론트엔드 애플리케이션입니다. 
-React + TypeScript + Vite 기반이며, 도메인별 운영 화면(요청, BOM, 구매, 재고, 자산, 입출고, 인사, 차량모델)을 제공합니다.
+자동차 부품 운영 ERP 프론트엔드입니다.  
+요청/구매/품목/재고/자산/입출고/인사/차량모델 업무를 하나의 웹 콘솔에서 처리합니다.
 
-## 핵심 기능
+## 프로젝트 요약
 
-- 운영 대시보드: 도메인별 핵심 지표와 업무 바로가기
-- 요청 관리: 승인/반려/처리 이력 조회 및 상세 확인
-- 구매 관리: 업체 등록, 소싱 후보 조회, PO 생성
-- 품목/BOM/재고/자산/입출고/인사 관리 화면 제공
-- OAuth2 + PKCE 로그인 흐름
-- MSW 기반 API 모킹 개발 환경 지원
+- 인증: OAuth2 + PKCE 로그인/콜백 + 토큰 갱신(`refresh_token`)
+- 권한: `RequireAuth` + `RequireOrgType` 기반 접근 제어(본사 권한 라우트)
+- 데이터: TanStack React Query로 서버 상태/캐시 관리
+- 개발: `npm run dev` 시 MSW worker 자동 시작(`onUnhandledRequest: "bypass"`)
+
+## 주요 기능 (코드 기준)
+
+- **운영 대시보드**: 요청/재고/자산/입출고/인사 지표를 카드·차트로 통합 표시
+- **요청 관리**: 승인 대기/진행/취소 목록 분리, 검색·기간·페이지 필터, 승인/반려 처리
+- **구매 관리**: 전체/선정 업체 조회, 소싱 섹션, 최대 3개 업체 비교, 등록 후 목록 갱신
+- **입고/출고 관리**: 예정/완료 리스트 분리, 요약 지표(완료율/지연/대기수량), 기간·검색 필터
+- **인사 관리**: 직급/직무/지역 필터 + 키워드 검색, 사용자 등록 모달
+- **마스터 관리**: BOM/품목/재고/자산/차량모델 모듈 분리 운영
 
 ## 기술 스택
 
-- Framework: React 19, React Router 7
-- Language: TypeScript
-- Data Fetching: TanStack React Query
-- Styling: styled-components
-- Charts: Recharts
-- Build Tool: Vite
-- Mocking/Test: MSW, Vitest, Testing Library
-- Lint: ESLint 9
+- Framework: React 19, React Router 7, Vite 7
+- Language/UI: TypeScript, styled-components, Recharts, react-datepicker
+- State/Data: TanStack React Query, fetch API
+- Testing/Quality: Vitest, Testing Library, ESLint 9, GitHub Actions CI
+- Mocking: MSW
 
-## 프로젝트 구조
+## 빠른 실행
 
-```txt
-src/
-  auth/           # 인증, 토큰 갱신, 로그인/콜백
-  dashboard/      # 대시보드 페이지/훅/스타일
-  request/        # 발주 요청 도메인
-  purchasing/     # 구매/소싱 도메인
-  items/          # 품목 도메인
-  part/           # 재고 도메인
-  inbound/        # 입고 도메인
-  outbound/       # 출고 도메인
-  property/       # 자산 도메인
-  human/          # 인사 도메인
-  routes/         # 라우팅 및 가드
-  mocks/          # MSW 핸들러/데이터
-```
+### 요구사항
+- Node.js 20+
+- npm
 
-## 상태 관리 전략
-
-- 서버 상태: React Query (`useQuery`, `useMutation`, cache/invalidate)
-- 클라이언트 상태: 컴포넌트 로컬 상태 (`useState`, `useMemo`, `useEffect`)
-- 전역 상태: 인증 토큰(storage) + 최소 사용자 프로필 store
-
-## 실행 방법
-
-### 1) 설치
-
+### 설치 및 개발
 ```bash
 npm ci
+npm run dev
 ```
 
-### 2) 환경변수 설정
+### 검증/빌드
+```bash
+npm run lint
+npm run test:run
+npm run build
+npm run preview
+```
 
-`.env.example`을 참고해 `.env` 작성:
+## 환경변수 (.env.example)
+
+아래는 코드에서 실제 참조되는 키입니다.
 
 ```env
 VITE_API_BASE_URL=http://localhost:8080
 VITE_AUTH_SERVER=http://localhost:8080/auth
 VITE_CLIENT_ID=gearfirst-client
 VITE_REDIRECT_URI=http://localhost:5173/auth/callback
-VITE_USE_MOCK=false
+VITE_AUTH_BYPASS=true
+VITE_USER_ME_ENDPOINT=http://localhost:8080/user/api/v1/me
 ```
 
-### 3) 개발 서버 실행
+## 프로젝트 구조
 
-```bash
-npm run dev
+```txt
+src/
+  auth/                # 인증/토큰/권한 가드
+  dashboard/           # 운영 대시보드
+  request/             # 요청 관리
+  purchasing/          # 구매 관리
+  items/               # 카테고리/자재/부품
+  part/ property/      # 재고/자산
+  inbound/ outbound/   # 입고/출고
+  human/ carModel/     # 인사/차량모델
+  components/common/   # 공통 UI
+  routes/              # 라우팅
+  mocks/               # MSW handlers/data
 ```
 
-## 스크립트
+## 현재 개발 환경 메모
 
-- `npm run dev`: 로컬 개발 서버
-- `npm run build`: 타입체크 + 프로덕션 빌드
-- `npm run lint`: ESLint 검사
-- `npm run test`: Vitest watch 모드
-- `npm run test:run`: 테스트 1회 + coverage
-- `npm run preview`: 빌드 결과 미리보기
-
-## 모킹(MSW) 제어
-
-- 기본: `VITE_USE_MOCK=false`
-- 모킹 활성화 시 `main.tsx`에서 worker가 시작되고, 개발 환경 API를 모킹합니다.
-
-## 품질 게이트
-
-- 빌드: `npm run build`
-- 린트: `npm run lint`
-- 테스트: `npm run test:run`
-- CI: `.github/workflows/ci.yml`에서 lint/build/test 자동 실행
-
-## 테스트 범위 (현재)
-
-- `src/auth/utils/redirectUri.test.ts`: 리다이렉트 URI 선택 로직
-- `src/purchasing/PurchasingApi.test.ts`: 구매 API 매핑 로직 (MSW API mocking)
-
-## 배포
-
-- SPA rewrite 설정: `vercel.json`
-- 정적 빌드 산출물: `dist/`
-
-## 향후 개선 계획
-
-- 남아있는 hook dependency warning 정리
-- 도메인별 테스트 커버리지 확대
-- 대시보드 비즈니스 로직 추가 분리 및 재사용성 개선
+- 원래는 백엔드 연동 구조로 개발되었고, 현재는 백엔드 미가동 상태를 고려해 MSW 기반으로 개발 중입니다.
+- `VITE_AUTH_BYPASS=true`로 인증 서버 없이 주요 플로우를 검증할 수 있습니다.
+- 배포 전에는 실제 백엔드 연동 E2E 검증이 필요합니다.
