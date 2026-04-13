@@ -20,6 +20,7 @@ import type {
   PendingOrderItem,
   ProcessedOrderItem,
 } from "../../request/RequestTypes";
+import { USE_MOCK } from "../../env";
 
 type PendingOrdersSelect = {
   total: number;
@@ -433,7 +434,7 @@ export function useDashboardData() {
 
 export async function fetchPods(namespace: string = "default") {
   // 개발/우회 모드에서는 프록시 호출 자체를 생략합니다.
-  if (import.meta.env.DEV || import.meta.env.VITE_AUTH_BYPASS === "true") {
+  if (USE_MOCK || import.meta.env.VITE_AUTH_BYPASS === "true") {
     return [
       { name: "api-gateway-0", phase: "Running" },
       { name: "inventory-service-0", phase: "Running" },

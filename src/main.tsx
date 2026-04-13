@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
+import { USE_MOCK } from "./env";
 import "./index.css";
 
 const queryClient = new QueryClient({
@@ -28,7 +29,7 @@ const ReactQueryDevtools = import.meta.env.DEV
   : null;
 
 async function enableMocking() {
-  if (import.meta.env && import.meta.env.MODE === "development") {
+  if (USE_MOCK) {
     const { worker } = await import("./mocks/browser");
     await worker.start({
       onUnhandledRequest: "bypass",

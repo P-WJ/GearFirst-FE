@@ -3,6 +3,7 @@ import { Bell } from "lucide-react";
 import styled from "styled-components";
 import { connectSSE, markAsRead } from "../NotificationApi";
 import type { NotificationItem } from "../NotificationTypes";
+import { USE_MOCK } from "../../env";
 
 const Wrapper = styled.div`
   position: relative;
@@ -95,7 +96,7 @@ export const NotificationList: React.FC = () => {
   const [connected, setConnected] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null); // SSE 유지용 ref
-  const isMock = Boolean(import.meta.env && import.meta.env.DEV);
+  const isMock = USE_MOCK;
 
   // SSE 최초 연결
   useEffect(() => {

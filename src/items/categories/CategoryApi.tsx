@@ -1,4 +1,5 @@
 import { WAREHOUSE_ENDPOINTS, type ListResponse } from "../../api";
+import { USE_MOCK } from "../../env";
 import {
   type CategoryRecord,
   type CategoryCreateDTO,
@@ -12,9 +13,7 @@ export const categoryKeys = {
 };
 
 const CATEGORY_BASE =
-  import.meta.env && import.meta.env.DEV
-    ? "/warehouse/api/v1/parts/categories"
-    : WAREHOUSE_ENDPOINTS.PART_CATEGORIES;
+  USE_MOCK ? "/warehouse/api/v1/parts/categories" : WAREHOUSE_ENDPOINTS.PART_CATEGORIES;
 
 export type CategoryListParams = {
   keyword?: string;
