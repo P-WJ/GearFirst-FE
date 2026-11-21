@@ -9,6 +9,7 @@ import {
   type ApiResponse,
   type ListResponse,
 } from "../../api";
+import { fetchWithAuth } from "../../auth/api/fetchWithAuth";
 
 export const materialKeys = {
   records: ["material", "records"] as const,
@@ -55,7 +56,7 @@ export async function fetchMaterialRecords(
     ? `${INVENTORY_ENDPOINTS.MATERIALS_LIST}/getMaterialList?${qs.toString()}`
     : `${INVENTORY_ENDPOINTS.MATERIALS_LIST}/getMaterialList`;
 
-  const res = await fetch(url);
+  const res = await fetchWithAuth(url);
   if (!res.ok) throw new Error(`Material 목록 요청 실패 (${res.status})`);
 
   const json: ApiResponse<ApiPage<MaterialListItem>> = await res.json();
@@ -75,17 +76,11 @@ export async function fetchMaterialRecords(
   };
 }
 
-export async function fetchMaterialDetail(id: string): Promise<MaterialRecord> {
-  const res = await fetch(`/api/materials/records/${id}`);
-  if (!res.ok) throw new Error(`Material 상세 요청 실패 (${res.status})`);
-  return res.json();
-}
-
 export async function createMaterial(
   payload: MaterialCreateDTO
 ): Promise<MaterialCreateDTO> {
   const url = `${INVENTORY_ENDPOINTS.MATERIALS_LIST}/addMaterial`;
-  const res = await fetch(url, {
+  const res = await fetchWithAuth(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify([payload]),
@@ -98,7 +93,7 @@ export async function updateMaterial(
   id: string,
   patch: MaterialUpdateDTO
 ): Promise<MaterialRecord> {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${INVENTORY_ENDPOINTS.MATERIALS_LIST}/updateMaterial/${id}`,
     {
       method: "PATCH",
@@ -118,7 +113,7 @@ export async function deleteMaterial(item: {
   ok: boolean;
   removedId: string;
 }> {
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${INVENTORY_ENDPOINTS.MATERIALS_LIST}/deleteMaterial`,
     {
       method: "DELETE",

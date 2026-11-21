@@ -16,6 +16,7 @@ import {
   type ListResponse,
   WAREHOUSE_ENDPOINTS,
 } from "../../api";
+import { fetchWithAuth } from "../../auth/api/fetchWithAuth";
 
 export const partKeys = {
   records: ["part", "records"] as const,
@@ -111,7 +112,7 @@ export async function fetchPartRecords(
     ? `${integratedBase}?${qs.toString()}`
     : integratedBase;
 
-  const res = await fetch(url, { method: "GET" });
+  const res = await fetchWithAuth(url, { method: "GET" });
   if (!res.ok) throw new Error(`부품 목록 요청 실패 (${res.status})`);
 
   const json: ApiResponse<ServerPartList> = await res.json();
@@ -151,7 +152,7 @@ export async function fetchPartDetail(
   id: string | number
 ): Promise<PartDetailRecord> {
   const url = `${WAREHOUSE_ENDPOINTS.PARTS_LIST}/${id}`;
-  const res = await fetch(url, { method: "GET" });
+  const res = await fetchWithAuth(url, { method: "GET" });
   if (!res.ok) throw new Error(`Part 상세 요청 실패 (${res.status})`);
   const json: ApiResponse<ServerPartDetail> = await res.json();
   if (!json.success) throw new Error(json.message || "부품 상세 조회 실패");
@@ -168,7 +169,7 @@ export async function createPart(payload: PartCreateDTO): Promise<PartRecord> {
     imageUrl: payload.imageUrl,
   });
 
-  const res = await fetch(`${WAREHOUSE_ENDPOINTS.PARTS_LIST}`, {
+  const res = await fetchWithAuth(`${WAREHOUSE_ENDPOINTS.PARTS_LIST}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -193,7 +194,7 @@ export async function updatePart(
     enabled: patch.enabled,
   });
 
-  const res = await fetch(`${WAREHOUSE_ENDPOINTS.PARTS_LIST}/${id}`, {
+  const res = await fetchWithAuth(`${WAREHOUSE_ENDPOINTS.PARTS_LIST}/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -207,7 +208,7 @@ export async function updatePart(
 export async function deletePart(
   id: string | number
 ): Promise<{ ok: boolean; removedId: string }> {
-  const res = await fetch(`${WAREHOUSE_ENDPOINTS.PARTS_LIST}/${id}`, {
+  const res = await fetchWithAuth(`${WAREHOUSE_ENDPOINTS.PARTS_LIST}/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error(`Part 삭제 실패 (${res.status})`);
@@ -227,7 +228,7 @@ export async function fetchPartCategories(
       ? `${base}?keyword=${encodeURIComponent(keyword.trim())}`
       : base;
 
-  const res = await fetch(url, { method: "GET" });
+  const res = await fetchWithAuth(url, { method: "GET" });
   if (!res.ok) throw new Error(`카테고리 목록 요청 실패 (${res.status})`);
   const json: ApiResponse<ServerPartCategory[]> = await res.json();
   if (!json.success) throw new Error(json.message || "카테고리 목록 조회 실패");

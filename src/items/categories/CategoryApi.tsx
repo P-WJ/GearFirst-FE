@@ -6,6 +6,7 @@ import {
   type CategoryUpdateDTO,
   type CategoryDetailRecord,
 } from "./CategoryTypes";
+import { fetchWithAuth } from "../../auth/api/fetchWithAuth";
 
 export const categoryKeys = {
   records: ["category", "records"] as const,
@@ -41,7 +42,7 @@ export async function fetchCategory(
   if (params.pageSize != null) qs.set("size", String(params.pageSize));
 
   const url = qs.toString() ? `${CATEGORY_BASE}?${qs.toString()}` : CATEGORY_BASE;
-  const res = await fetch(url);
+  const res = await fetchWithAuth(url);
 
   if (!res.ok) throw new Error(`카테고리 조회 실패 (${res.status})`);
   const json: ApiResponse<CategoryRecord[]> = await res.json();
@@ -74,7 +75,7 @@ export async function fetchCategory(
 export async function fetchCategoryDetail(
   id: string | number
 ): Promise<CategoryDetailRecord> {
-  const res = await fetch(`${CATEGORY_BASE}/${id}`, {
+  const res = await fetchWithAuth(`${CATEGORY_BASE}/${id}`, {
     headers: { Accept: "application/json" },
   });
   if (!res.ok) throw new Error(`카테고리 상세 조회 실패 (${res.status})`);
@@ -88,7 +89,7 @@ export async function fetchCategoryDetail(
 export async function createCategory(
   dto: CategoryCreateDTO
 ): Promise<CategoryRecord> {
-  const res = await fetch(`${CATEGORY_BASE}`, {
+  const res = await fetchWithAuth(`${CATEGORY_BASE}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify(dto),
@@ -103,7 +104,7 @@ export async function updateCategory(
   id: string | number,
   dto: CategoryUpdateDTO
 ): Promise<CategoryRecord> {
-  const res = await fetch(`${CATEGORY_BASE}/${id}`, {
+  const res = await fetchWithAuth(`${CATEGORY_BASE}/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify(dto),
@@ -117,7 +118,7 @@ export async function updateCategory(
 export async function deleteCategory(
   id: string | number
 ): Promise<{ ok: true; removedId: string }> {
-  const res = await fetch(`${CATEGORY_BASE}/${id}`, {
+  const res = await fetchWithAuth(`${CATEGORY_BASE}/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error(`카테고리 삭제 실패 (${res.status})`);

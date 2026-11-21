@@ -4,6 +4,7 @@ import type {
   MaterialItem,
   PurchasingRecord,
 } from "./PurchasingTypes";
+import { fetchWithAuth } from "../auth/api/fetchWithAuth";
 
 const BASE_URL = INVENTORY_BASE_PATH;
 
@@ -50,7 +51,7 @@ async function requestJson<T>(
   path: string,
   init: RequestInit = {},
 ): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await fetchWithAuth(`${BASE_URL}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",

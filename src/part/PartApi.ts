@@ -1,5 +1,6 @@
 import type { PartResponse } from "./PartTypes";
 import { WAREHOUSE_BASE_PATH } from "../api";
+import { fetchWithAuth } from "../auth/api/fetchWithAuth";
 
 export const partKeys = {
   records: ["part", "part-records"] as const,
@@ -23,7 +24,7 @@ export async function fetchPartRecords(params: {
 
   const url = query.size > 0 ? `${BASE_URL}?${query.toString()}` : BASE_URL;
 
-  const res = await fetch(url, {
+  const res = await fetchWithAuth(url, {
     headers: {
       "Content-Type": "application/json",
     },

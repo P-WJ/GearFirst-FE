@@ -31,7 +31,7 @@ export const userKeys = {
 
 export async function getRegion(): Promise<ListResponse<Region[]>> {
   const url = `${USER_BASE_PATH}/getRegion`;
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const res = await fetchWithAuth(url, { headers: { Accept: "application/json" } });
 
   if (!res.ok) throw new Error(`지역 조회 실패 (${res.status})`);
 
@@ -47,7 +47,7 @@ export async function getRegion(): Promise<ListResponse<Region[]>> {
 
 export async function getWorkType(): Promise<ListResponse<WorkType[]>> {
   const url = `${USER_BASE_PATH}/getWorkType`;
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const res = await fetchWithAuth(url, { headers: { Accept: "application/json" } });
 
   if (!res.ok) throw new Error(`지점 조회 실패 (${res.status})`);
 
@@ -87,7 +87,7 @@ export async function fetchUsers(
   qs.set("size", String(pageSize));
   qs.set("sort", "");
 
-  const res = await fetch(`${url}?${qs.toString()}`, {
+  const res = await fetchWithAuth(`${url}?${qs.toString()}`, {
     headers: { Accept: "application/json" },
   });
 

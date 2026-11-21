@@ -21,6 +21,7 @@ import type {
   ProcessedOrderItem,
 } from "../../request/RequestTypes";
 import { USE_MOCK } from "../../env";
+import { fetchWithAuth } from "../../auth/api/fetchWithAuth";
 
 type PendingOrdersSelect = {
   total: number;
@@ -442,7 +443,7 @@ export async function fetchPods(namespace: string = "default") {
   }
 
   try {
-    const res = await fetch(
+    const res = await fetchWithAuth(
       `/notification/k8s/pods/list?namespace=${namespace}`,
     );
     if (res.ok) {

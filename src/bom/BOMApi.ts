@@ -14,6 +14,7 @@ import {
   type BOMCreateDTO,
   type DeleteBOMMaterialsDTO,
 } from "./BOMTypes";
+import { fetchWithAuth } from "../auth/api/fetchWithAuth";
 
 export const bomKeys = {
   records: ["bom", "records"] as const,
@@ -75,7 +76,7 @@ export async function fetchBOMRecords(
     ? `${INVENTORY_ENDPOINTS.BOM_LIST}/getBomList?${qs.toString()}`
     : `${INVENTORY_ENDPOINTS.BOM_LIST}/getBomList`;
 
-  const res = await fetch(url);
+  const res = await fetchWithAuth(url);
   if (!res.ok) throw new Error(`BOM 목록 요청 실패 (${res.status})`);
 
   const json = (await res.json()) as ApiResponse<ApiPage<ServerBOMItem>>;
@@ -99,7 +100,7 @@ export async function fetchBOMMaterials(
   bomCodeId: string
 ): Promise<Material[]> {
   const url = `${INVENTORY_ENDPOINTS.BOM_LIST}/getMaterialList/${bomCodeId}`;
-  const res = await fetch(url);
+  const res = await fetchWithAuth(url);
   if (!res.ok) throw new Error(`BOM 자재 목록 요청 실패 (${res.status})`);
 
   const json = (await res.json()) as ApiResponse<ServerBOMMaterialItem[]>;
@@ -112,7 +113,7 @@ export async function addBOMMaterials(
   dto: BOMCreateDTO
 ): Promise<{ ok: boolean }> {
   const url = `${INVENTORY_ENDPOINTS.BOM_LIST}/addMaterialList/${dto.partId}`;
-  const res = await fetch(url, {
+  const res = await fetchWithAuth(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(dto),
@@ -133,7 +134,7 @@ export async function deleteBOMMaterials(
   }
 
   const url = `${INVENTORY_ENDPOINTS.BOM_LIST}/deleteMaterialList/${partIdNum}`;
-  const res = await fetch(url, {
+  const res = await fetchWithAuth(url, {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify({ partId: partIdNum, materialIds: dto.materialIds }),

@@ -1,5 +1,6 @@
 import type { PropertyResponse } from "./PropertyTypes";
 import { WAREHOUSE_BASE_PATH } from "../api";
+import { fetchWithAuth } from "../auth/api/fetchWithAuth";
 
 export const propertyKeys = {
   records: ["property", "property-records"] as const,
@@ -43,7 +44,7 @@ export async function fetchPropertyRecords(
   const url =
     query.size > 0 ? `${BASE_URL}?${query.toString()}` : BASE_URL;
 
-  const res = await fetch(url, {
+  const res = await fetchWithAuth(url, {
     headers: {
       "Content-Type": "application/json",
     },

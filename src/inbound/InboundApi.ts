@@ -13,6 +13,7 @@ import type {
 } from "./InboundTypes";
 
 import { mapDetailLineStatus, mapNoteStatusToGroup } from "./InboundTypes";
+import { fetchWithAuth } from "../auth/api/fetchWithAuth";
 
 export const inboundKeys = {
   records: ["inbound", "records"] as const,
@@ -267,7 +268,7 @@ async function requestInboundList(
   const base = `${WAREHOUSE_ENDPOINTS.INBOUND_LIST}/notes`;
   const url = qs.toString() ? `${base}?${qs.toString()}` : base;
 
-  const res = await fetch(url, { headers: { Accept: "application/json" } });
+  const res = await fetchWithAuth(url, { headers: { Accept: "application/json" } });
   if (!res.ok) throw new Error(`입고 데이터 요청 실패 (${res.status})`);
 
   const json: ApiResponse<ServerInboundList> = await res.json();
@@ -313,7 +314,7 @@ export async function fetchInboundDetail(
   noteId: string | number
 ): Promise<InboundDetailRecord> {
   const url = `${WAREHOUSE_ENDPOINTS.INBOUND_LIST}/${noteId}`;
-  const res = await fetch(url, {
+  const res = await fetchWithAuth(url, {
     method: "GET",
     headers: { Accept: "application/json" },
   });

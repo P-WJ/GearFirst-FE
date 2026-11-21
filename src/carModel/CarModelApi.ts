@@ -19,6 +19,7 @@ import {
   toCarModelRecord,
   toPartCarModelMapping,
 } from "./CarModelTypes";
+import { fetchWithAuth } from "../auth/api/fetchWithAuth";
 
 const CAR_MODEL_ENDPOINT = `${WAREHOUSE_BASE_PATH}/car-models`;
 const PARTS_ENDPOINT = `${WAREHOUSE_BASE_PATH}/parts`;
@@ -145,7 +146,7 @@ export async function fetchCarModels(
   const url = qs.toString()
     ? `${CAR_MODEL_ENDPOINT}?${qs.toString()}`
     : CAR_MODEL_ENDPOINT;
-  const res = await fetch(url, { method: "GET" });
+  const res = await fetchWithAuth(url, { method: "GET" });
   if (!res.ok) throw new Error(`차량 모델 목록 요청 실패 (${res.status})`);
   const json: ApiResponse<ServerPage<ServerCarModel>> = await res.json();
   if (!json.success)
@@ -172,7 +173,7 @@ export async function fetchPartCarModels(
     ? `${PARTS_ENDPOINT}/${numericId}/car-models?${qs.toString()}`
     : `${PARTS_ENDPOINT}/${numericId}/car-models`;
 
-  const res = await fetch(url, { method: "GET" });
+  const res = await fetchWithAuth(url, { method: "GET" });
   if (!res.ok) throw new Error(`부품-차량 모델 목록 요청 실패 (${res.status})`);
   const json: ApiResponse<ServerPage<ServerPartCarModel>> = await res.json();
   if (!json.success)
@@ -187,7 +188,7 @@ export async function createPartCarModelMapping(
   payload: PartCarModelCreateDTO
 ): Promise<PartCarModelMapping> {
   const numericId = resolvePartId(partId);
-  const res = await fetch(`${PARTS_ENDPOINT}/${numericId}/car-models`, {
+  const res = await fetchWithAuth(`${PARTS_ENDPOINT}/${numericId}/car-models`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -204,7 +205,7 @@ export async function updatePartCarModelMapping(
   payload: PartCarModelUpdateDTO
 ): Promise<PartCarModelMapping> {
   const numericId = resolvePartId(partId);
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${PARTS_ENDPOINT}/${numericId}/car-models/${carModelId}`,
     {
       method: "PATCH",
@@ -223,7 +224,7 @@ export async function deletePartCarModelMapping(
   carModelId: number
 ): Promise<void> {
   const numericId = resolvePartId(partId);
-  const res = await fetch(
+  const res = await fetchWithAuth(
     `${PARTS_ENDPOINT}/${numericId}/car-models/${carModelId}`,
     {
       method: "DELETE",
@@ -261,7 +262,7 @@ export async function fetchCarModelParts(
   const url = qs.toString()
     ? `${CAR_MODEL_ENDPOINT}/${carModelId}/parts?${qs.toString()}`
     : `${CAR_MODEL_ENDPOINT}/${carModelId}/parts`;
-  const res = await fetch(url, { method: "GET" });
+  const res = await fetchWithAuth(url, { method: "GET" });
   if (!res.ok)
     throw new Error(`차량 모델 적용 부품 목록 요청 실패 (${res.status})`);
   const json: ApiResponse<ServerPage<ServerCarModelPart>> = await res.json();
@@ -273,7 +274,7 @@ export async function fetchCarModelParts(
 export async function createCarModel(
   payload: CarModelCreateDTO
 ): Promise<CarModelRecord> {
-  const res = await fetch(CAR_MODEL_ENDPOINT, {
+  const res = await fetchWithAuth(CAR_MODEL_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -288,7 +289,7 @@ export async function updateCarModel(
   carModelId: number,
   payload: CarModelUpdateDTO
 ): Promise<CarModelRecord> {
-  const res = await fetch(`${CAR_MODEL_ENDPOINT}/${carModelId}/enable`, {
+  const res = await fetchWithAuth(`${CAR_MODEL_ENDPOINT}/${carModelId}/enable`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

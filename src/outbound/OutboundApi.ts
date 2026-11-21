@@ -1,5 +1,6 @@
 import { WAREHOUSE_ENDPOINTS } from "../api";
 import type { OutboundRecord } from "./OutboundTypes";
+import { fetchWithAuth } from "../auth/api/fetchWithAuth";
 
 const OUTBOUND_NOTES_ENDPOINT = `${WAREHOUSE_ENDPOINTS.OUTBOUND_LIST}/notes`;
 
@@ -88,7 +89,7 @@ async function requestOutboundList(
       ? `${OUTBOUND_NOTES_ENDPOINT}?${qs.toString()}`
       : OUTBOUND_NOTES_ENDPOINT;
 
-  const res = await fetch(url);
+  const res = await fetchWithAuth(url);
   if (!res.ok) {
     throw new Error(`출고 데이터 요청 실패 (${res.status})`);
   }
@@ -145,7 +146,7 @@ export async function fetchOutboundDetail(
   noteId: string | number
 ): Promise<OutboundRecord> {
   const url = `${WAREHOUSE_ENDPOINTS.OUTBOUND_LIST}/${noteId}`;
-  const res = await fetch(url);
+  const res = await fetchWithAuth(url);
 
   if (!res.ok) {
     throw new Error(`출고 상세 요청 실패 (${res.status})`);

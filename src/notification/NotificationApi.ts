@@ -1,4 +1,5 @@
-﻿import type { NotificationItem } from "./NotificationTypes";
+﻿import { fetchWithAuth } from "../auth/api/fetchWithAuth";
+import type { NotificationItem } from "./NotificationTypes";
 
 const BASE_URL = "/notification";
 
@@ -8,7 +9,7 @@ type ReadResponse = {
 
 export async function markAsRead(id: number) {
   try {
-    const res = await fetch(`${BASE_URL}/notifications/${id}/read`, {
+    const res = await fetchWithAuth(`${BASE_URL}/notifications/${id}/read`, {
       method: "POST",
       credentials: "include",
       headers: {
