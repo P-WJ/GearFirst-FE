@@ -1,142 +1,129 @@
 ﻿# GearFirst Frontend
 
-자동차 부품 운영 ERP를 위한 React 기반 프론트엔드입니다. 요청, 구매, 품목, 재고, 자산, 입출고, 인사, 차량 모델 관리 기능을 하나의 웹 콘솔로 통합했습니다.
+자동차 부품 공급망 ERP **GearFirst**의 본사용 웹 콘솔입니다. 대리점 발주 승인부터 품목·BOM·입출고·인사 관리까지 본사 업무를 하나의 화면에서 처리합니다.
 
-이 저장소는 프론트엔드 전용 저장소이며, 백엔드 서버와 인증 서버는 포함하지 않습니다.
+> 백엔드 서버가 종료되어, 공개 배포본은 **MSW mock + 인증 bypass**로 동작하는 데모입니다.
+> 조회뿐 아니라 등록·수정·삭제·승인도 동작하며, 새로고침하면 초기 데이터로 돌아갑니다.
 
-## 현재 상태
-
-- 초기에는 실제 백엔드 연동을 전제로 개발했습니다.
-- 현재는 백엔드 서버 미가동 상태로 인해 `MSW + auth bypass` 기반 mock 중심 개발 환경으로 운영하고 있습니다.
-- 현재 공개 배포본도 `MSW + auth bypass` 기반 데모 환경입니다.
-- 백엔드가 가동되는 환경에서는 `onUnhandledRequest: "bypass"`를 이용해, 핸들러에 없는 API만 실제 서버로 보내는 하이브리드 연동이 가능합니다.
-- 연동 완료된 API는 MSW 핸들러에서 제거하면서 실서버 호출로 점진 전환할 수 있습니다.
-
-## 주요 기능
-
-- 운영 대시보드: 요청, 협력사, 재고, 자산, 입출고, 인력 데이터를 요약해 보여줍니다.
-- 요청 / 구매 관리: 목록 조회, 검색, 기간 필터, 상태 분기, 비교 흐름을 제공합니다.
-- 품목 / 재고 / 자산 관리: 부품, 자재, 카테고리, 재고, 자산을 도메인별 화면으로 관리합니다.
-- 입고 / 출고 / 인사 / 차량 모델 관리: 운영 화면과 상세 흐름을 제공합니다.
-- 인증 / 권한: OAuth2 Authorization Code + PKCE 기반 로그인 구조와 보호 라우트를 적용했습니다.
-
-## 기술 스택
-
-| 영역         | 스택                                                        |
-| ------------ | ----------------------------------------------------------- |
-| Framework    | React 19, React Router 7, Vite 7                            |
-| Language     | TypeScript                                                  |
-| State / Data | TanStack React Query, fetch API                             |
-| UI           | styled-components, Recharts, react-datepicker, lucide-react |
-| Mocking      | MSW                                                         |
-| Quality      | ESLint                                                      |
-| Deployment   | Vercel                                                      |
+<br>
 
 ## 실행 방법
 
-### 1. 의존성 설치
+**요구 사항**: Node.js 20 이상, npm
 
 ```bash
 npm ci
-```
-
-### 2. 환경 파일 생성
-
-```bash
-cp .env.example .env
-```
-
-PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-### 3. 실행 모드 선택
-
-#### 로컬 UI 개발 / 데모 확인
-
-```bash
 npm run dev
 ```
 
-- `npm run dev`에서는 MSW가 항상 켜집니다.
-- 핸들러에 등록된 API는 mock 응답을 반환합니다.
-- 핸들러에 없는 요청만 실제 서버로 bypass 됩니다.
-- `VITE_AUTH_BYPASS=true`면 인증 서버 없이 주요 화면 흐름을 확인할 수 있습니다.
+브라우저에서 `http://localhost:5173`으로 접속합니다.
 
-#### 실백엔드 스모크 테스트
+개발 서버에서는 MSW가 항상 켜지고, 저장소의 `.env` 기본값이 인증 bypass라서 백엔드와 인증 서버 없이 바로 모든 화면을 확인할 수 있습니다.
 
-`.env` 예시:
+<br>
+
+## 스크립트
+
+| 명령어 | 설명 |
+| --- | --- |
+| `npm run dev` | 개발 서버 실행 (MSW 사용) |
+| `npm run build` | 타입 검사 후 프로덕션 빌드 |
+| `npm run preview` | 빌드 결과물 실행 |
+| `npm run lint` | ESLint 검사 |
+| `npm run test` | Vitest watch 모드 |
+| `npm run test:run` | 테스트 1회 실행과 커버리지 리포트 |
+
+<br>
+
+## 구조
+
+### 화면에서 API까지
+
+```mermaid
+flowchart LR
+    PAGE[페이지] --> RQ["React Query<br/>useQuery · useMutation"]
+    RQ --> API[도메인별 API 모듈]
+    API --> F[fetchWithAuth]
+    F --> M{MSW 핸들러 있음?}
+    M -- 예 --> MOCK[Mock 응답]
+    M -- 아니오 --> GW[API Gateway]
+```
+
+- API 요청은 `fetchWithAuth`를 거쳐 토큰이 붙고, 401 응답을 받으면 토큰을 재발급해 한 번 재시도합니다. 토큰 발급·재발급 같은 인증 흐름과 공개 회원가입만 예외입니다.
+- 등록·수정·삭제 후에는 `invalidateDomain`이 바뀐 데이터를 보여 주는 다른 도메인의 쿼리까지 함께 무효화합니다.
+
+### 전체 서비스 구성
+
+```mermaid
+flowchart LR
+    WEB["웹 콘솔 (이 저장소)"] --> ING[GKE Ingress]
+    APP["iOS · Android 앱"] --> ING
+    ING -- /auth --> AUTH["인증 서버<br/>OAuth2 · JWT"]
+    ING --> GW[API Gateway]
+    GW --> SVC["order · warehouse · inventory · user · receipt"]
+    SVC -- 이벤트 --> K[(Kafka)]
+    K --> NOTI[notification]
+    NOTI -. SSE .-> WEB
+
+    style WEB stroke-width:3px
+```
+
+웹 콘솔은 Vercel, 백엔드는 GKE에 배포한 MSA 구조입니다. 서비스마다 DB를 따로 두고, 서비스 사이의 이벤트는 Kafka로 전달해 본사 화면에 알림으로 표시합니다.
+
+### 폴더 구조와 도메인
+
+도메인 단위로 폴더를 나누고, 각 폴더 안에 화면, API, 타입을 함께 둡니다.
+
+```txt
+src/
+├── auth/            로그인(OAuth2 + PKCE), 토큰 재발급, 사용자 정보
+├── routes/          라우팅, 로그인·조직 권한 가드
+├── dashboard/       요청, 재고, 입출고 현황 요약
+├── request/         대리점·창고 발주 요청 승인과 반려
+├── purchasing/      공급업체 견적 비교, 구매 발주
+├── items/           부품, 자재, 카테고리 관리
+├── bom/             부품별 BOM 구성
+├── carModel/        차종 등록, 부품과 차종 매핑
+├── part/            창고별 재고, 안전 재고
+├── property/        자산 현황
+├── inbound/         입고 예정·완료 내역, 검수 상세
+├── outbound/        출고 요청과 진행 상태
+├── human/           사용자 등록, 수정, 삭제
+├── user/            내 정보
+├── notification/    알림 목록, SSE 연결
+├── components/      공통 UI 컴포넌트
+├── hooks/           공통 훅
+├── utils/           쿼리 무효화 규칙, JWT 파싱 등 유틸
+├── mocks/           MSW 핸들러(조회, 등록·수정·삭제)와 목데이터
+└── test/            테스트 설정
+```
+
+<br>
+
+## 기술 스택
+
+- **Framework**: React 19, React Router 7, Vite 7, TypeScript 5.8
+- **Server State**: TanStack Query 5
+- **Styling · UI**: styled-components 6, Recharts, react-datepicker, lucide-react
+- **Mocking · Test**: MSW 2, Vitest 4, Testing Library
+- **CI · Deploy**: GitHub Actions, Vercel
+
+<br>
+
+## 환경 변수
+
+저장소에 포함된 `.env` 기본값입니다.
 
 ```env
 VITE_API_BASE_URL=http://localhost:8080
 VITE_AUTH_SERVER=http://localhost:8080/auth
 VITE_CLIENT_ID=gearfirst-client
-VITE_REDIRECT_URI=http://localhost:4173/auth/callback
+VITE_REDIRECT_URI=http://localhost:5173/auth/callback
 VITE_USE_MOCK=false
-VITE_AUTH_BYPASS=false
+VITE_AUTH_BYPASS=true
 ```
 
-실행:
+- **`VITE_USE_MOCK`**: `npm run build`로 만든 빌드본에서 MSW를 켤지 정합니다. 개발 서버(`npm run dev`)에서는 이 값과 관계없이 항상 켜집니다. 배포 데모는 `true`로 빌드합니다.
+- **`VITE_AUTH_BYPASS`**: `true`면 인증 서버 없이 데모 계정으로 로그인합니다. 실제 인증 서버와 연동할 때는 `false`로 바꿉니다.
 
-```bash
-npm run build
-npm run preview
-```
-
-- `build + preview`에서는 `VITE_USE_MOCK` 값에 따라 mock 사용 여부가 결정됩니다.
-- `.env`를 바꿨다면 `preview`만 다시 켜는 것이 아니라 `build`를 다시 해야 합니다.
-- `VITE_REDIRECT_URI`와 인증 서버에 등록된 콜백 주소가 `preview` 포트와 정확히 일치해야 로그인 검증이 가능합니다.
-
-## 주요 환경 변수
-
-| 변수                    | 설명                                           |
-| ----------------------- | ---------------------------------------------- |
-| `VITE_API_BASE_URL`     | API 기본 주소                                  |
-| `VITE_AUTH_SERVER`      | OAuth2 authorize/token 서버 주소               |
-| `VITE_CLIENT_ID`        | OAuth2 client id                               |
-| `VITE_REDIRECT_URI`     | 로그인 콜백 URI                                |
-| `VITE_USE_MOCK`         | `preview` 또는 배포 환경에서 mock 사용 여부    |
-| `VITE_AUTH_BYPASS`      | `true`면 인증 서버 없이 bypass 로그인 사용     |
-| `VITE_USER_ME_ENDPOINT` | 사용자 정보 조회 API override가 필요할 때 사용 |
-
-## 구현 포인트
-
-- React Query: 목록 조회에서 페이지, 검색, 필터 조건을 `queryKey`에 반영하고, 변경 작업 이후 관련 쿼리를 재조회하는 방식으로 서버 상태를 관리합니다.
-- 인증 구조: OAuth2 Authorization Code + PKCE, 토큰 재발급, `RequireAuth` / `RequireOrgType` 가드로 인증과 권한 흐름을 분리했습니다.
-- Mock 전환: `onUnhandledRequest: "bypass"` 기반으로, 미완성 API만 mock에 남기고 연동 완료 API는 핸들러에서 제거하는 점진 전환 구조를 사용합니다.
-
-## 프로젝트 구조
-
-```txt
-src/
-  auth/          인증, PKCE, 토큰, 사용자 정보
-  routes/        라우팅, 인증/권한 가드
-  dashboard/     운영 대시보드
-  request/       요청 관리
-  purchasing/    구매 관리
-  items/         부품, 자재, 카테고리 관리
-  part/          재고 관리
-  property/      자산 관리
-  inbound/       입고 관리
-  outbound/      출고 관리
-  human/         인사 관리
-  carModel/      차량 모델 관리
-  user/          사용자 프로필
-  notification/  알림 UI 및 SSE 연결
-  components/    공통 UI 컴포넌트
-  hooks/         공통 훅
-  mocks/         mock handlers, mock data
-  test/          테스트 설정
-```
-
-## 품질 및 배포
-
-```bash
-npm run lint
-npm run build
-```
-
-- 현재 Vercel 배포는 `VITE_USE_MOCK=true`, `VITE_AUTH_BYPASS=true` 기준의 데모 배포입니다.
-- 배포 성공은 mock + bypass 구성이 정상이라는 뜻이며, 실제 백엔드/인증 연동 검증을 의미하지 않습니다.
+Vite는 환경 변수를 빌드할 때 코드에 넣기 때문에, 빌드본은 값을 바꾼 뒤 다시 빌드해야 반영됩니다.
