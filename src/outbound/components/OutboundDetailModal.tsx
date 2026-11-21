@@ -40,7 +40,6 @@ const OutboundDetailModal = ({
   onClose,
   disableOverlayClose = false,
 }: Props) => {
-  // ESC로 닫기 지원
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -59,7 +58,7 @@ const OutboundDetailModal = ({
     queryKey: outboundKeys.detail(noteId ?? "nil"),
     queryFn: () => fetchOutboundDetail(noteId!),
     enabled,
-    staleTime: 5 * 60 * 1000, // 5분 캐시
+    staleTime: 5 * 60 * 1000,
     placeholderData: (prev) => prev,
   });
 
@@ -99,7 +98,6 @@ const OutboundDetailModal = ({
           </Section>
         )}
 
-        {/* 출고 정보 */}
         <Section>
           <SectionTitle>출고 정보</SectionTitle>
           <DetailGrid>
@@ -142,7 +140,6 @@ const OutboundDetailModal = ({
           </DetailGrid>
         </Section>
 
-        {/* 부품 정보 */}
         <Section>
           <SectionTitle>부품 정보</SectionTitle>
           <TableScroll $maxHeight={240}>
@@ -206,7 +203,6 @@ const OutboundDetailModal = ({
           </TableScroll>
         </Section>
 
-        {/* 담당자 정보 */}
         <Section>
           <SectionTitle>담당자 정보</SectionTitle>
           <DetailGrid>
@@ -225,7 +221,6 @@ const OutboundDetailModal = ({
           </DetailGrid>
         </Section>
 
-        {/* 비고 */}
         <Section>
           <SectionTitle>비고</SectionTitle>
           <RemarkSection>

@@ -17,18 +17,15 @@ export default function BasketTable({
 }) {
   const total = lines.reduce((s, l) => s + l.orderQty * l.unitPrice, 0);
 
-  /** 페이지네이션 상태 */
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5); // 최소 5개씩 표시
+  const [pageSize, setPageSize] = useState(5);
 
-  /** 현재 페이지 데이터 계산 */
   const pagedRows = useMemo(() => {
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
     return lines.slice(start, end);
   }, [lines, page, pageSize]);
 
-  /** 전체 페이지 수 계산 */
   const totalPages = Math.ceil(lines.length / pageSize) || 1;
 
   return (
@@ -41,7 +38,6 @@ export default function BasketTable({
             <Th>주문수량</Th>
             <Th>단가</Th>
             <Th>금액</Th>
-            {/* <Th>도착예정일</Th> */}
             <Th></Th>
           </tr>
         </thead>
@@ -79,7 +75,6 @@ export default function BasketTable({
               </Td>
               <Td>{b.unitPrice.toLocaleString()}</Td>
               <Td>{(b.orderQty * b.unitPrice).toLocaleString()}</Td>
-              {/* <Td>{b.eta}</Td> */}
               <Td>
                 <Button
                   size="sm"
@@ -115,7 +110,6 @@ export default function BasketTable({
         </div>
       )}
 
-      {/* 총 금액 표시 */}
       <div
         style={{
           display: "flex",
@@ -139,7 +133,6 @@ export default function BasketTable({
         </div>
       </div>
 
-      {/* 버튼 영역 */}
       <div
         style={{
           display: "flex",

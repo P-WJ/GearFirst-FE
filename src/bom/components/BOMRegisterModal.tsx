@@ -128,7 +128,6 @@ const BOMRegisterModal = ({
 
   const removeMaterial = (id: string) => {
     setMaterials((arr) => {
-      // 행이 하나뿐이면 내용만 초기화
       if (arr.length === 1) {
         return [
           {
@@ -141,7 +140,6 @@ const BOMRegisterModal = ({
         ];
       }
 
-      // 여러 개면 해당 행 제거
       return arr.filter((m) => m.id !== id);
     });
   };
@@ -152,7 +150,6 @@ const BOMRegisterModal = ({
     const confirmReset = window.confirm("모든 자재 정보를 초기화하시겠습니까?");
     if (!confirmReset) return;
 
-    // 자재 행이 1개면 내용만 비우고 유지
     if (materials.length === 1) {
       setMaterials([
         {
@@ -166,7 +163,6 @@ const BOMRegisterModal = ({
       return;
     }
 
-    // 여러 개면 전체 삭제 후 1개 비어있는 행만 남김
     setMaterials([
       {
         id: crypto.randomUUID(),

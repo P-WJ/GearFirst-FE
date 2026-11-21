@@ -15,7 +15,6 @@ export const materialKeys = {
   detail: (id: string) => ["material", "detail", id] as const,
 };
 
-// 서버 단일 아이템
 type MaterialListItem = {
   id: number;
   materialName: string;
@@ -23,16 +22,14 @@ type MaterialListItem = {
   createdDate?: string;
 };
 
-// 목록 조회 파라미터 (서버가 지원하는 것만 전달)
 export type MaterialListParams = {
-  keyword?: string; // 서버가 지원하면 사용
-  startDate?: string | null; // 서버가 지원하면 사용
-  endDate?: string | null; // 서버가 지원하면 사용
-  page?: number; // 1-based(화면 기준) -> 서버 0-based로 변환
+  keyword?: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  page?: number;
   pageSize?: number;
 };
 
-// 서버 → 앱 모델 변환
 function toMaterialRecord(item: MaterialListItem): MaterialRecord {
   return {
     id: item.id,
@@ -42,7 +39,6 @@ function toMaterialRecord(item: MaterialListItem): MaterialRecord {
   };
 }
 
-// 목록 조회: 서버 페이징 그대로 사용
 export async function fetchMaterialRecords(
   params?: MaterialListParams
 ): Promise<ListResponse<MaterialRecord[]>> {
@@ -68,7 +64,6 @@ export async function fetchMaterialRecords(
   const page = json.data;
   const rows = page.content.map(toMaterialRecord);
 
-  // 서버 메타 → 앱 메타로 그대로 매핑 (화면은 1-based)
   return {
     data: rows,
     meta: {

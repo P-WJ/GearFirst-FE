@@ -1,7 +1,6 @@
 import type { PropertyResponse } from "./PropertyTypes";
 import { WAREHOUSE_BASE_PATH } from "../api";
 
-// --- query keys ---
 export const propertyKeys = {
   records: ["property", "property-records"] as const,
 };

@@ -135,19 +135,6 @@ export const itemsHandlers = [
     return HttpResponse.json(response);
   }),
 
-  http.get(`${PARTS_BASE}/:id`, ({ params }) => {
-    const id = String(params.id);
-    const detail = partDetails.find((item) => String(item.id) === id);
-    if (!detail) {
-      return HttpResponse.json(
-        { status: 404, success: false, message: "Not found", data: null },
-        { status: 404 }
-      );
-    }
-    const response: ApiResponse<ServerPartDetail> = toApiResponse(detail);
-    return HttpResponse.json(response);
-  }),
-
   http.get(`${PARTS_BASE}/categories`, ({ request }) => {
     const url = new URL(request.url);
     const keyword = normalizeQueryString(url, "keyword");
@@ -198,6 +185,19 @@ export const itemsHandlers = [
       );
     }
     const response: ApiResponse<CategoryDetailRecord> = toApiResponse(detail);
+    return HttpResponse.json(response);
+  }),
+
+  http.get(`${PARTS_BASE}/:id`, ({ params }) => {
+    const id = String(params.id);
+    const detail = partDetails.find((item) => String(item.id) === id);
+    if (!detail) {
+      return HttpResponse.json(
+        { status: 404, success: false, message: "Not found", data: null },
+        { status: 404 }
+      );
+    }
+    const response: ApiResponse<ServerPartDetail> = toApiResponse(detail);
     return HttpResponse.json(response);
   }),
 ];

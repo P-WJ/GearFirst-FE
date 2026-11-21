@@ -6,7 +6,6 @@ import UserMenu from "./UserMenu";
 import { readCurrentUserFromToken } from "../../auth/utils/currentUser";
 import { NotificationList } from "../../notification/components/NotificationList";
 
-/* ─ tokens: 절제된 기업 톤 */
 const color = {
   bg: "rgba(255, 255, 255, 0.92)",
   text: "#15161c",
@@ -49,7 +48,6 @@ const HeaderLogo = styled.img`
   display: block;
 `;
 
-/* 가운데 메뉴: 심플 중앙 정렬 */
 const MenuBar = styled.nav`
   display: flex;
   justify-content: center;
@@ -64,7 +62,6 @@ const MenuGroup = styled.div`
   white-space: nowrap;
 `;
 
-/* 미니멀 탭 */
 const MenuLink = styled(NavLink).attrs({ end: false })`
   position: relative;
   display: inline-flex;
@@ -85,7 +82,6 @@ const MenuLink = styled(NavLink).attrs({ end: false })`
     transform: translateY(-1px);
   }
 
-  /* 활성: 얇은 언더라인만 */
   &.active {
     color: ${color.primary};
   }

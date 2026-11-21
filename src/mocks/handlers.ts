@@ -1,11 +1,6 @@
-import { bomHandlers } from "../bom/mock/handlers";
-import { partHandlers as partsHandlers } from "../items/parts/mock/handlers";
-import { handlers as inboundHandlers } from "../inbound/mock/handlers";
-import { propertyHandlers } from "../property/mock/handlers";
-import { materialHandlers } from "../items/materials/mock/handlers";
 import { categoryHandlers } from "../items/categories/mock/handlers";
-import { inboundHandlers as inboundApiHandlers } from "./handlers/inbound.handlers";
-import { bomHandlers as bomApiHandlers } from "./handlers/bom.handlers";
+import { inboundHandlers } from "./handlers/inbound.handlers";
+import { bomHandlers } from "./handlers/bom.handlers";
 import { itemsHandlers } from "./handlers/items.handlers";
 import { vehicleHandlers } from "./handlers/vehicle.handlers";
 import { outboundHandlers } from "./handlers/outbound.handlers";
@@ -14,11 +9,13 @@ import { purchasingHandlers } from "./handlers/purchasing.handlers";
 import { humanHandlers } from "./handlers/human.handlers";
 import { propertyHandlers as inventoryHandlers } from "./handlers/property.handlers";
 import { authHandlers } from "./handlers/auth.handlers";
+import { mutationHandlers } from "./handlers/mutations.handlers";
 
 export const handlers = [
+  ...mutationHandlers,
   ...authHandlers,
-  ...inboundApiHandlers,
-  ...bomApiHandlers,
+  ...inboundHandlers,
+  ...bomHandlers,
   ...itemsHandlers,
   ...vehicleHandlers,
   ...outboundHandlers,
@@ -27,9 +24,4 @@ export const handlers = [
   ...humanHandlers,
   ...inventoryHandlers,
   ...categoryHandlers,
-  ...inboundHandlers,
-  ...bomHandlers,
-  ...partsHandlers,
-  ...materialHandlers,
-  ...propertyHandlers,
 ];

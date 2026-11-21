@@ -1,7 +1,6 @@
 import styled, { css } from "styled-components";
 import { Table } from "./PageLayout";
 
-// 스크롤 컨테이너
 export const TableScroll = styled.div<{ $maxHeight?: number | string }>`
   max-height: ${({ $maxHeight = 160 }) =>
     typeof $maxHeight === "number" ? `${$maxHeight}px` : $maxHeight};
@@ -19,7 +18,6 @@ export const TableScroll = styled.div<{ $maxHeight?: number | string }>`
   }
 `;
 
-// 스티키 테이블 (열·행 크기, 세로선 등 제어 가능)
 export const StickyTable = styled(Table)<{
   $stickyTop?: number;
   $headerBg?: string;
@@ -117,5 +115,4 @@ export const StickyTable = styled(Table)<{
     `}
 `;
 
-// 편의용 래퍼 (선택)
 export const ScrollStickyTable = styled(StickyTable)``;

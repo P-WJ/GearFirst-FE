@@ -18,7 +18,6 @@ import FilterResetButton from "../components/common/filters/FilterResetButton";
 import { usePagination } from "../hooks/usePagination";
 
 export default function PropertyPage() {
-  // 입력 상태
   const [keyword, setKeyword] = useState("");
   const [appliedKeyword, setAppliedKeyword] = useState("");
   const pagination = usePagination(1, 10);

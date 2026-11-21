@@ -7,7 +7,6 @@ import {
 } from "../RequestTypes";
 import { fmtDate } from "../../utils/string";
 
-/** 승인/반려 처리된 요청 목록 테이블 */
 export default function RequestTable({
   rows,
   onRowClick,

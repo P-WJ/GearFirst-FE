@@ -65,7 +65,7 @@ export default function BOMDetailModal({
 
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   useEffect(() => {
-    if (open) setSelectedIds([]); // 모달 열릴 때 초기화
+    if (open) setSelectedIds([]);
   }, [open, partId]);
 
   const toggleOne = (id: number) => {
@@ -133,7 +133,6 @@ export default function BOMDetailModal({
           <CloseButton onClick={onClose}>&times;</CloseButton>
         </Header>
 
-        {/* 부품 정보 */}
         <Section>
           <SectionTitle>부품 정보</SectionTitle>
           <DetailGrid>

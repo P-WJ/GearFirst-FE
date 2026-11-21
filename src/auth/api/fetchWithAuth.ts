@@ -16,7 +16,6 @@ export async function fetchWithAuth(
     },
   });
 
-  // 401 → 리프레시 시도
   if (first.status !== 401) return first;
 
   const newToken = await refreshAccessToken();

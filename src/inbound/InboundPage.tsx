@@ -34,7 +34,6 @@ type ListResponse<T> = {
 };
 
 export default function InboundPage() {
-  // 공통 필터
   const [keywordNotDone, setKeywordNotDone] = useState("");
   const [startNotDone, setStartNotDone] = useState("");
   const [endNotDone, setEndNotDone] = useState("");
@@ -53,7 +52,6 @@ export default function InboundPage() {
     dateTo: null,
   });
 
-  // 섹션별 페이지네이션
   const pendingPagination = usePagination(1, 10);
   const donePagination = usePagination(1, 10);
 
@@ -69,7 +67,6 @@ export default function InboundPage() {
     pageSize,
   });
 
-  // 입고 예정(Not Done)
   const paramsNotDone = buildParams(
     appliedNotDone,
     pendingPagination.page,
@@ -85,7 +82,6 @@ export default function InboundPage() {
     placeholderData: (prev) => prev,
   });
 
-  // 입고 완료(Done)
   const paramsDone = buildParams(
     appliedDone,
     donePagination.page,

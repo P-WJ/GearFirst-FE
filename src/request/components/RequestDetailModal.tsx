@@ -32,7 +32,6 @@ import { Td, Th } from "../../components/common/PageLayout";
 import type { OrderInfoItem } from "../RequestTypes";
 import { fmtDate } from "../../utils/string";
 
-// 모달의 동작 모드: 발주/요청 상세
 type DetailVariant = "order" | "request";
 
 interface DetailModalProps {
@@ -73,7 +72,6 @@ const DetailModal = ({
   const orderId = record?.orderId;
   const enabled = Boolean(isOpen && orderId);
 
-  // 상세 데이터 조회
   const {
     data: detail,
     isPending,
@@ -137,7 +135,6 @@ const DetailModal = ({
           </HeaderLeft>
           <CloseButton onClick={onClose}>&times;</CloseButton>
         </Header>
-        {/* 발주 정보 */}
         <Section>
           <SectionTitle>발주 정보</SectionTitle>
           <DetailGrid>
@@ -171,7 +168,6 @@ const DetailModal = ({
           </DetailGrid>
         </Section>
 
-        {/* 부품 정보 */}
         <Section>
           <SectionTitle>부품 정보</SectionTitle>
           <TableScroll $maxHeight={200}>
@@ -282,7 +278,6 @@ const DetailModal = ({
             </StickyTable>
           </TableScroll>
         </Section>
-        {/* 지점 정보 */}
         <Section>
           <SectionTitle>{getBranchType(order?.branchCode)} 정보</SectionTitle>
           <DetailGrid>
@@ -296,7 +291,6 @@ const DetailModal = ({
             </DetailItem>
           </DetailGrid>
         </Section>
-        {/* 담당자 정보 */}
         <Section>
           <SectionTitle>담당자 정보</SectionTitle>
           <DetailGrid>
@@ -315,7 +309,6 @@ const DetailModal = ({
           </DetailGrid>
         </Section>
 
-        {/* 비고 */}
         <Section>
           <SectionTitle>비고</SectionTitle>
           {cfg.remarkMode === "editable" ? (

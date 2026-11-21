@@ -2,12 +2,9 @@ import { useState } from "react";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
 import { Table, Td, Th } from "../../components/common/PageLayout";
 import BOMDetailModal from "./BOMDetailModal";
-// import BOMRegisterModal from "./BOMRegisterModal";
 
 import {
   type BOMRecord,
-  // type BOMFormModel,
-  // toBOMPatchPayload,
   type DeleteBOMMaterialsDTO,
 } from "../BOMTypes";
 import { bomKeys, deleteBOMMaterials } from "../BOMApi";
@@ -17,13 +14,6 @@ export default function BOMTable({ rows }: { rows: BOMRecord[] }) {
 
   const [selectedRecord, setSelectedRecord] = useState<BOMRecord | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // 등록/수정 모달
-  // const [isRegOpen, setIsRegOpen] = useState(false);
-  // const [regMode, setRegMode] = useState<"create" | "edit">("edit");
-  // const [initialForEdit, setInitialForEdit] = useState<BOMFormModel | null>(
-  //   null
-  // );
 
   const queryClient = useQueryClient();
 
@@ -37,19 +27,6 @@ export default function BOMTable({ rows }: { rows: BOMRecord[] }) {
     setTimeout(() => setSelectedRecord(null), 0);
   };
 
-  // const updateMut = useMutation<
-  //   BOMRecord,
-  //   Error,
-  //   { id: string; patch: BOMUpdateDTO }
-  // >({
-  //   mutationFn:
-  //   },
-  //   onSuccess: () => {
-  //     queryClient.invalidateQueries({ queryKey: bomKeys.records });
-  //     setIsRegOpen(false);
-  //   },
-  // });
-
   const deleteMut = useMutation<{ ok: boolean }, Error, DeleteBOMMaterialsDTO>({
     mutationFn: deleteBOMMaterials,
     onSuccess: async () => {
@@ -57,7 +34,6 @@ export default function BOMTable({ rows }: { rows: BOMRecord[] }) {
         queryKey: bomKeys.records,
         exact: false,
       });
-      // 선택된 레코드가 있다면 그 BOM의 자재도 무효화 (모달을 안 닫는 UX에서도 반영됨)
       if (selectedRecord?.bomCodeId != null) {
         await queryClient.invalidateQueries({
           queryKey: bomKeys.materials(String(selectedRecord.bomCodeId)),
@@ -126,38 +102,8 @@ export default function BOMTable({ rows }: { rows: BOMRecord[] }) {
         isOpen={isModalOpen}
         onClose={closeDetail}
         onDelete={handleDelete}
-        // onEdit={(rec) => {
-        //   closeDetail();
-        //   setRegMode("edit");
-        //   setInitialForEdit({
-        //     bomId: rec.bomCodeId,
-        //     partCode: rec.partCode,
-        //     partName: rec.partName,
-        //     category: rec.category,
-        //     materials: (rec.materials ?? []).map((m) => ({
-        //       materialCode: m.materialCode,
-        //       materialName: m.materialName,
-        //       materialQty: m.materialQty,
-        //     })),
-        //     createdDate: rec.createdDate,
-        //   });
-        //   setIsRegOpen(true);
-        // }}
       />
 
-      {/* <BOMRegisterModal
-        isOpen={isRegOpen}
-        onClose={() => setIsRegOpen(false)}
-        mode={regMode}
-        initial={initialForEdit}
-        onSubmit={async (payload: BOMFormModel) => {
-          if (!payload.bomId) return;
-          await updateMut.mutateAsync({
-            id: payload.bomId,
-            patch: toBOMPatchPayload(payload),
-          });
-        }}
-      /> */}
     </>
   );
 }

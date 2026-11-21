@@ -55,7 +55,6 @@ async function requestJson<T>(
   return res.json() as Promise<T>;
 }
 
-// 미승인 목록 조회
 export async function fetchPendingOrders(params: {
   page: number;
   size: number;
@@ -71,7 +70,6 @@ export async function fetchPendingOrders(params: {
   );
 }
 
-// 승인 목록 조회
 export async function fetchProcessedOrders(params: {
   page: number;
   size: number;
@@ -88,7 +86,6 @@ export async function fetchProcessedOrders(params: {
   );
 }
 
-// 승인/반려 목록 조회
 export async function fetchCancelOrders(params: {
   page: number;
   size: number;
@@ -105,14 +102,12 @@ export async function fetchCancelOrders(params: {
   );
 }
 
-// 상세
 export async function fetchOrderDetail(
   orderId: number
 ): Promise<OrderDetailResponse> {
   return requestJson<OrderDetailResponse>(`/purchase-orders/head/${orderId}`);
 }
 
-// 발주 반려
 export async function rejectOrder(orderId: number, note: string) {
   return requestJson<ActionResponse>(`/purchase-orders/${orderId}/reject`, {
     method: "PATCH",
@@ -120,7 +115,6 @@ export async function rejectOrder(orderId: number, note: string) {
   });
 }
 
-// 발주 승인
 export async function approveOrder(orderId: number, note: string) {
   return requestJson<ActionResponse>(`/purchase-orders/${orderId}/approve`, {
     method: "PATCH",

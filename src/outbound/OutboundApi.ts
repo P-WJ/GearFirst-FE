@@ -47,13 +47,11 @@ type OutboundDetailPayload = {
   data?: OutboundRecord;
 };
 
-// 페이지 사이즈 보정
 function clampPageSize(size?: number): number {
   if (typeof size !== "number" || Number.isNaN(size)) return DEFAULT_PAGE_SIZE;
   return Math.max(PAGE_SIZE_MIN, Math.min(PAGE_SIZE_MAX, size));
 }
 
-// 쿼리 파라미터 생성
 function buildOutboundQuery(params?: OutboundListParams): URLSearchParams {
   const qs = new URLSearchParams();
   const status = params?.status ?? "all";
@@ -75,7 +73,6 @@ function buildOutboundQuery(params?: OutboundListParams): URLSearchParams {
   return qs;
 }
 
-// 공통 리스트 요청 함수
 async function requestOutboundList(
   params: OutboundListParams | undefined,
   defaultStatus?: OutboundListParams["status"]
@@ -114,7 +111,6 @@ async function requestOutboundList(
   };
 }
 
-// 리스트 API들
 export function fetchOutboundRecords(
   params?: OutboundListParams
 ): Promise<ListResponse<OutboundRecord[]>> {
@@ -145,7 +141,6 @@ export function fetchOutboundDelayedRecords(
   return requestOutboundList(params, "delayed");
 }
 
-// 상세 조회 API
 export async function fetchOutboundDetail(
   noteId: string | number
 ): Promise<OutboundRecord> {

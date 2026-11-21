@@ -441,11 +441,11 @@ const PodStatus = styled.span<{ $phase: string }>`
   ${({ $phase }) =>
     $phase === "Running"
       ? css`
-          background-color: #16a34a; /* 초록불 */
+          background-color: #16a34a;
           box-shadow: 0 0 6px #16a34a66;
         `
       : css`
-          background-color: #dc2626; /* 빨강불 */
+          background-color: #dc2626;
           box-shadow: 0 0 6px #dc262666;
         `}
 `;
@@ -490,6 +490,3 @@ export {
   PodName,
   PodStatus
 };
-
-
-

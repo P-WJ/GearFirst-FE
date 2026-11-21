@@ -13,7 +13,6 @@ interface Props {
   width?: string;
 }
 
-// 안전 파서/포맷터
 const toDate = (s?: string) => {
   if (!s) return null;
   const [y, m, d] = s.split("-").map(Number);
@@ -27,17 +26,15 @@ const fmt = (d: Date | null) => {
   return `${y}-${m}-${day}`;
 };
 
-// 마스킹 유틸
 const onlyDigits = (s: string) => s.replace(/\D/g, "");
 const maskYYYYMMDD = (digits: string) => {
   const v = digits.slice(0, 8);
-  if (v.length <= 4) return v; // YYYY
-  if (v.length <= 6) return `${v.slice(0, 4)}-${v.slice(4)}`; // YYYY-MM
-  return `${v.slice(0, 4)}-${v.slice(4, 6)}-${v.slice(6, 8)}`; // YYYY-MM-DD
+  if (v.length <= 4) return v;
+  if (v.length <= 6) return `${v.slice(0, 4)}-${v.slice(4)}`;
+  return `${v.slice(0, 4)}-${v.slice(4, 6)}-${v.slice(6, 8)}`;
 };
 const isValidYMD = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s);
 
-// DatePicker용 커스텀 인풋
 type CustomInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   onValueChange?: (v: string) => void;
   $width?: string;
@@ -64,10 +61,6 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
             }
           }}
           onBlur={(e) => {
-            const v = e.currentTarget.value;
-            if (!isValidYMD(v)) {
-              // e.currentTarget.value = "";
-            }
             onBlur?.(e);
           }}
         />
@@ -90,7 +83,6 @@ export default function DateRange({
 
   return (
     <Wrapper>
-      {/* 시작일 */}
       <DatePicker
         selected={start}
         onChange={(d) => onStartDateChange(fmt(d as Date | null))}
@@ -114,7 +106,6 @@ export default function DateRange({
         )}
       />
 
-      {/* 종료일 */}
       <DatePicker
         selected={end}
         onChange={(d) => onEndDateChange(fmt(d as Date | null))}
@@ -142,7 +133,6 @@ export default function DateRange({
   );
 }
 
-// 스타일
 const Wrapper = styled.div`
   display: flex;
   align-items: center;

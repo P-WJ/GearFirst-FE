@@ -34,7 +34,6 @@ const MaterialDetailModal = ({
   onDelete,
   disableOverlayClose = false,
 }: Props) => {
-  // ESC로 닫기
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -68,7 +67,6 @@ const MaterialDetailModal = ({
           <CloseButton onClick={onClose}>&times;</CloseButton>
         </Header>
 
-        {/* 자재 정보 */}
         <Section>
           <SectionTitle>자재 정보</SectionTitle>
           <DetailGrid>
@@ -87,7 +85,6 @@ const MaterialDetailModal = ({
           </DetailGrid>
         </Section>
 
-        {/* 작성 정보 */}
         <Section>
           <SectionTitle>작성 정보</SectionTitle>
           <DetailGrid>
@@ -95,13 +92,9 @@ const MaterialDetailModal = ({
               <Label>작성일자</Label>
               <Value>{record.createdDate}</Value>
             </DetailItem>
-            {/* 필요 시 확장:
-            <DetailItem><Label>작성자</Label><Value>{record.createdBy}</Value></DetailItem>
-            */}
           </DetailGrid>
         </Section>
 
-        {/* 액션 */}
         <Footer>
           <Button color="black" onClick={() => onEdit?.(record)} title="수정">
             수정

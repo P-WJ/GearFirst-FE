@@ -39,19 +39,16 @@ export default function RequestPage() {
   const toErrorMessage = (err: unknown, fallback: string) =>
     err instanceof Error ? err.message : fallback;
 
-  // 선택된 레코드 & 모달
   const [selectedRecord, setSelectedRecord] = useState<
     PendingOrderItem | ProcessedOrderItem | null
   >(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // 모달 모드: order(승인 가능) | request(읽기 전용)
   const [modalVariant, setModalVariant] = useState<"order" | "request">(
     "order"
   );
 
   const queryClient = useQueryClient();
 
-  //승인 기능 (React Query invalidate 포함)
   const handleApprove = async (orderId: number, remark?: string) => {
     const note = remark?.trim() ?? "";
 
@@ -61,7 +58,6 @@ export default function RequestPage() {
 
       setIsModalOpen(false);
 
-      // 목록 새로고침
       queryClient.invalidateQueries({ queryKey: ["pending-orders"] });
       queryClient.invalidateQueries({ queryKey: ["processed-orders"] });
     } catch (err: unknown) {
@@ -69,7 +65,6 @@ export default function RequestPage() {
     }
   };
 
-  // 반려 기능 (React Query invalidate 포함)
   const handleReject = async (orderId: number, remark?: string) => {
     const note = remark?.trim() ?? "";
 
@@ -79,14 +74,12 @@ export default function RequestPage() {
 
       setIsModalOpen(false);
 
-      // 목록 새로고침
       queryClient.invalidateQueries({ queryKey: ["pending-orders"] });
       queryClient.invalidateQueries({ queryKey: ["cancel-orders"] });
     } catch (err: unknown) {
       alert(toErrorMessage(err, "반려 요청 실패"));
     }
   };
-  // 미승인 필터
   const [keywordPending, setKeywordPending] = useState("");
   const [appliedPendingKeyword, setAppliedPendingKeyword] = useState("");
   const [startDatePending, setStartDatePending] = useState("");
@@ -95,7 +88,6 @@ export default function RequestPage() {
   const [appliedEndDatePending, setAppliedEndDatePending] = useState("");
   const pendingPagination = usePagination(1, 10);
 
-  // 미승인 목록 조회
   const { data: pendingData, fetchStatus: pendingFetchStatus } =
     useQuery<PendingOrderResponse>({
       queryKey: [
@@ -119,7 +111,6 @@ export default function RequestPage() {
       placeholderData: (prev) => prev,
     });
 
-  // 미승인 검색/초기화 핸들러
   const onSearchPending = () => {
     setAppliedPendingKeyword(keywordPending.trim());
     setAppliedStartDatePending(startDatePending);
@@ -137,7 +128,6 @@ export default function RequestPage() {
     pendingPagination.resetPage();
   };
 
-  // 승인/진행중/완료 (APPROVED, SHIPPED, COMPLETED)
   const [keywordProcessed, setKeywordProcessed] = useState("");
   const [appliedProcessedKeyword, setAppliedProcessedKeyword] = useState("");
   const [startDateProcessed, setStartDateProcessed] = useState("");
@@ -187,7 +177,6 @@ export default function RequestPage() {
     processedPagination.resetPage();
   };
 
-  // 반려/취소 (REJECTED, CANCELLED)
   const [keywordCancel, setKeywordCancel] = useState("");
   const [appliedCancelKeyword, setAppliedCancelKeyword] = useState("");
   const [startDateCancel, setStartDateCancel] = useState("");
@@ -247,7 +236,6 @@ export default function RequestPage() {
       ? Math.round((processedTotal / (processedTotal + pendingTotal)) * 100)
       : 0;
 
-  // 모달 열기
   const handleOpen = (
     rec: PendingOrderItem | ProcessedOrderItem,
     variant: "order" | "request"

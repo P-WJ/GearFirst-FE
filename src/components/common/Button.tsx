@@ -128,7 +128,6 @@ const StyledButton = styled.button<{
   ${({ $variant, $size }) =>
     $variant === "icon" ? iconVariant : sizeStyles[$size]}
 
-  /* ---- color (기본 variant용) ---- */
   ${({ $variant, $color }) =>
     $variant === "default" ? colorStyles[$color] : css``}
 

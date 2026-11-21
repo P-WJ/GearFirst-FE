@@ -22,14 +22,12 @@ export default function PartTable({ rows }: { rows: PartRecord[] }) {
   const [selectedRecord, setSelectedRecord] = useState<PartRecord | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  // 등록/수정 겸용 모달
   const [isRegOpen, setIsRegOpen] = useState(false);
   const [regMode, setRegMode] = useState<"create" | "edit">("create");
   const [initialForEdit, setInitialForEdit] = useState<PartFormModel | null>(
     null
   );
 
-  // 수정 대상 id를 별도로 저장 (form에는 id가 없으므로)
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
@@ -128,7 +126,6 @@ export default function PartTable({ rows }: { rows: PartRecord[] }) {
         </tbody>
       </Table>
 
-      {/* 상세 모달 */}
       <PartDetailModal
         record={selectedRecord}
         isOpen={isDetailOpen}
@@ -137,7 +134,7 @@ export default function PartTable({ rows }: { rows: PartRecord[] }) {
         onEdit={(rec) => {
           closeDetail();
           setRegMode("edit");
-          setEditingId(rec.partId); // 수정 대상 id 저장
+          setEditingId(rec.partId);
 
           setInitialForEdit({
             partCode: rec.partCode,
@@ -152,7 +149,6 @@ export default function PartTable({ rows }: { rows: PartRecord[] }) {
         }}
       />
 
-      {/* 등록/수정 모달 */}
       <PartRegisterModal
         isOpen={isRegOpen}
         onClose={() => setIsRegOpen(false)}

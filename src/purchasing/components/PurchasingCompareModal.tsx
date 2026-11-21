@@ -16,7 +16,6 @@ import {
 } from "../../components/common/ModalPageLayout";
 import type { PurchasingRecord } from "../PurchasingTypes";
 
-/* --- transient prop을 추가한 래퍼 --- */
 const SafeModalContainer = styled(BaseModalContainer)<{ $maxWidth?: string }>`
   ${({ $maxWidth }) => $maxWidth && `max-width: ${$maxWidth};`}
 `;
@@ -27,7 +26,6 @@ interface Props {
   records: PurchasingRecord[];
 }
 
-/* 기존 Compare 컴포넌트 그대로 */
 const CompareGrid = styled.div<{ $cols: number }>`
   display: grid;
   grid-template-columns: repeat(${(p) => p.$cols}, 1fr);

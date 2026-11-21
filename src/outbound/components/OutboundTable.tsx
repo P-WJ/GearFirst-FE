@@ -10,7 +10,7 @@ import { fmtDate } from "../../utils/string";
 
 interface OutboundTableProps {
   rows: OutboundRecord[];
-  variant: "pending" | "done"; // 출고예정 / 출고완료 구분
+  variant: "pending" | "done";
 }
 
 export default function OutboundTable({ rows, variant }: OutboundTableProps) {

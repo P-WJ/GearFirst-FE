@@ -17,7 +17,6 @@ import {
   WAREHOUSE_ENDPOINTS,
 } from "../../api";
 
-/** React Query keys */
 export const partKeys = {
   records: ["part", "records"] as const,
   detail: (id: string | number) => ["part", "detail", String(id)] as const,
@@ -27,7 +26,6 @@ export const partCategoryKeys = {
   list: ["partCategory", "list"] as const,
 };
 
-/** 목록 조회 파라미터 */
 export type PartListParams = {
   q?: string;
   categoryId?: number | string;
@@ -35,16 +33,15 @@ export type PartListParams = {
   carModelId?: number | string;
   carModelName?: string;
   enabled?: boolean;
-  page?: number; // 1-based
+  page?: number;
   pageSize?: number;
-  /** 정렬을 커스텀하려면 넣음. 예: ["name,desc","code,asc"] */
   sort?: string[] | string;
 };
 
 type ServerPartList = {
   items?: ServerPartListItem[];
   content?: ServerPartListItem[];
-  page?: number; // 0-based
+  page?: number;
   size?: number;
   total?: number;
   totalElements?: number;
@@ -103,9 +100,6 @@ function buildQuery(params?: PartListParams) {
   return qs;
 }
 
-/* ========== API ========== */
-
-/** 목록 조회 */
 export async function fetchPartRecords(
   params?: PartListParams
 ): Promise<ListResponse<PartRecord[]>> {
@@ -166,7 +160,6 @@ export async function fetchPartDetail(
 
 export async function createPart(payload: PartCreateDTO): Promise<PartRecord> {
   const body = toPartCreateDTO({
-    // PartCreateDTO(화면명)과 PartFormModel 구조가 같다는 전제. 필요시 변환.
     partCode: payload.code,
     partName: payload.name,
     partPrice: payload.price,
@@ -186,7 +179,6 @@ export async function createPart(payload: PartCreateDTO): Promise<PartRecord> {
   return mapServerToPartRecord(json.data);
 }
 
-/** 수정 — PATCH로 부분 수정 */
 export async function updatePart(
   id: string | number,
   patch: PartUpdateDTO
@@ -212,7 +204,6 @@ export async function updatePart(
   return mapServerToPartRecord(json.data);
 }
 
-/** 삭제 */
 export async function deletePart(
   id: string | number
 ): Promise<{ ok: boolean; removedId: string }> {
@@ -225,7 +216,6 @@ export async function deletePart(
   return { ok: true, removedId: String(id) };
 }
 
-/** 카테고리 목록 조회 */
 export async function fetchPartCategories(
   keyword?: string
 ): Promise<ServerPartCategory[]> {

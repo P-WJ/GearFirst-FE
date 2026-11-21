@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useMemo, useState, type JSX, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Check } from "lucide-react";
 import type { TokenResponse } from "../types/auth";
 import { syncUserProfileFromToken } from "../utils/userProfile";
 import { resolveRedirectUri } from "../utils/redirectUri";
@@ -185,7 +186,7 @@ function AuthCallback(): JSX.Element {
   const indicator =
     status === "success" ? (
       <div style={successStyles} aria-hidden>
-        ✓
+        <Check size={24} strokeWidth={3} />
       </div>
     ) : status === "error" ? (
       <div style={errorStyles} aria-hidden>

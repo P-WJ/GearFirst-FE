@@ -30,7 +30,6 @@ const PageSection = ({
   footer,
   isBusy,
   loadingText = "데이터를 불러오는 중입니다...",
-  // minHeight = 240,
   showOverlay = true,
 }: PropsWithChildren<PageSectionProps>) => {
   return (
@@ -47,7 +46,6 @@ const PageSection = ({
 
       {filters ? <FilterGroup>{filters}</FilterGroup> : null}
 
-      {/* <Body $minHeight={minHeight}> */}
       <Body>
         {children}
         <LoadingOverlay
@@ -70,11 +68,9 @@ const Heading = styled.div`
   gap: 0.3rem;
 `;
 
-// const Body = styled.div<{ $minHeight: number }>`
 const Body = styled.div`
   position: relative;
 `;
-// min-height: ${({ $minHeight }) => `${Math.max(0, $minHeight)}px`};
 
 const Footer = styled.div`
   margin-top: 0.85rem;

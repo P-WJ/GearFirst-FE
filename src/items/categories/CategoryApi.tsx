@@ -19,11 +19,10 @@ export type CategoryListParams = {
   keyword?: string;
   startDate?: string | null;
   endDate?: string | null;
-  page?: number; // 1-base
+  page?: number;
   pageSize?: number;
 };
 
-// 서버: { status, success, message, data: Category[] } 형태라고 가정
 type ApiResponse<T> = {
   status: number;
   success: boolean;
@@ -31,7 +30,6 @@ type ApiResponse<T> = {
   data: T;
 };
 
-// 배열 응답을 ListResponse로 감싸고, 클라에서 페이지네이션/검색 수행
 export async function fetchCategory(
   params: CategoryListParams
 ): Promise<ListResponse<CategoryRecord[]>> {
@@ -49,7 +47,6 @@ export async function fetchCategory(
   const json: ApiResponse<CategoryRecord[]> = await res.json();
   if (!json.success) throw new Error(json.message || "카테고리 조회 실패");
 
-  // 클라 필터/검색
   const keyword = (params.keyword ?? "").trim().toLowerCase();
   let items = Array.isArray(json.data) ? json.data : [];
 

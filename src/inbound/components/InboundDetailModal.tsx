@@ -49,7 +49,6 @@ const InboundDetailModal = ({
   onClose,
   disableOverlayClose = false,
 }: Props) => {
-  // ESC 닫기
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -119,7 +118,6 @@ const InboundDetailModal = ({
           </Section>
         )}
 
-        {/* 헤더 정보 */}
         <Section>
           <SectionTitle>입고 정보</SectionTitle>
           <DetailGrid>
@@ -170,7 +168,6 @@ const InboundDetailModal = ({
           </DetailGrid>
         </Section>
 
-        {/* 라인 테이블 */}
         <Section>
           <SectionTitle>라인(부품) 정보</SectionTitle>
           <TableScroll $maxHeight={260}>
@@ -231,7 +228,6 @@ const InboundDetailModal = ({
           </TableScroll>
         </Section>
 
-        {/* 검수자 */}
         <Section>
           <SectionTitle>검수자 정보</SectionTitle>
           <DetailGrid>
@@ -250,7 +246,6 @@ const InboundDetailModal = ({
           </DetailGrid>
         </Section>
 
-        {/* 비고 */}
         <Section>
           <SectionTitle>비고</SectionTitle>
           <RemarkSection>

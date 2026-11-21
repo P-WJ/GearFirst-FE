@@ -2,7 +2,6 @@ import { forwardRef, type HTMLAttributes } from "react";
 import styled, { css } from "styled-components";
 import LoadingOverlay from "./LoadingOverlay";
 
-/* 모달 전체 배경 */
 export const Overlay = styled.div`
   position: fixed;
   inset: 0;
@@ -15,10 +14,10 @@ export const Overlay = styled.div`
   z-index: 2000;
 `;
 interface ModalContainerStyleProps {
-  width?: string; // ex) "800px" or "60%"
-  maxWidth?: string; // ex) "90%"
-  height?: string; // ex) "600px"
-  padding?: string; // ex) "24px"
+  width?: string;
+  maxWidth?: string;
+  height?: string;
+  padding?: string;
 }
 
 export type ModalContainerProps = ModalContainerStyleProps &
@@ -71,7 +70,6 @@ const StyledModalContainer = styled.div<ModalContainerStyleProps>`
           padding: 0;
         `}
 
-  /* 기본값 */
   ${({ width }) =>
     !width &&
     css`
@@ -95,7 +93,6 @@ const StyledModalContainer = styled.div<ModalContainerStyleProps>`
   }
 `;
 
-/* 모달 컨테이너 */
 export const ModalContainer = forwardRef<HTMLDivElement, ModalContainerProps>(
   (
     { children, loading = false, loadingLabel = "처리 중입니다...", ...rest },
@@ -115,7 +112,6 @@ ModalContainer.displayName = "ModalContainer";
 
 export const ModalContainerBase = StyledModalContainer;
 
-/* 모달 상단 헤더 */
 export const Header = styled.header`
   position: sticky;
   top: 0;
@@ -128,14 +124,12 @@ export const Header = styled.header`
   align-items: center;
 `;
 
-/* 제목 + 상태 뱃지 묶음 (왼쪽 영역) */
 export const HeaderLeft = styled.header`
   display: flex;
   align-items: center;
   gap: 1.2rem;
 `;
 
-/* 모달 제목 */
 export const Title = styled.h3`
   margin: 0;
   font-size: 1.35rem;
@@ -145,7 +139,6 @@ export const Title = styled.h3`
   margin: 0;
 `;
 
-/* 닫기 버튼 (X) */
 export const CloseButton = styled.button`
   --size: 38px;
   border: none;
@@ -166,7 +159,6 @@ export const CloseButton = styled.button`
   }
 `;
 
-/* 각 섹션 */
 export const Section = styled.section`
   padding: 1.6rem 2.1rem;
   &:not(:last-child) {
@@ -174,7 +166,6 @@ export const Section = styled.section`
   }
 `;
 
-/* 섹션 제목 */
 export const SectionTitle = styled.h4`
   margin: 0 0 1rem;
   font-size: 0.82rem;
@@ -186,21 +177,18 @@ export const SectionTitle = styled.h4`
 
 type DetailGridProps = { $cols?: number };
 
-/* 상세 정보 그리드 */
 export const DetailGrid = styled.div<DetailGridProps>`
   display: grid;
   grid-template-columns: repeat(${({ $cols = 3 }) => $cols}, 1fr);
   gap: 0.8rem 1.5rem;
 `;
 
-/* 각 항목의 묶음 (Label + Value) */
 export const DetailItem = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
 `;
 
-/* 항목 이름 (예: 담당자, 부품코드 등) */
 export const Label = styled.span`
   font-size: 0.72rem;
   letter-spacing: 0.08em;
@@ -208,14 +196,12 @@ export const Label = styled.span`
   color: #90909a;
 `;
 
-/* 항목 값 */
 export const Value = styled.span`
   font-size: 0.98rem;
   font-weight: 600;
   color: #111113;
 `;
 
-/* 부품 리스트 */
 export const PartList = styled.div`
   border: 1px solid rgba(17, 17, 17, 0.06);
   border-radius: 14px;
@@ -225,7 +211,6 @@ export const PartList = styled.div`
   overflow-y: scroll;
 `;
 
-/* 비고 영역 (텍스트가 길 경우 내부 스크롤) */
 export const RemarkSection = styled(Section)`
   max-height: 160px;
   overflow-y: auto;
@@ -234,13 +219,11 @@ export const RemarkSection = styled(Section)`
   border-radius: 18px;
 `;
 
-/* 비고 입력 래퍼 */
 export const TextareaWrapper = styled.div`
   width: 100%;
   box-sizing: border-box;
 `;
 
-/* 비고 입력 텍스트창 */
 export const StyledTextarea = styled.textarea`
   width: 100%;
   min-height: 72px;
@@ -268,7 +251,6 @@ export const Footer = styled.div`
   gap: 0.75rem;
 `;
 
-/* 버튼 */
 export const Button = styled.button<{ color?: string }>`
   border: none;
   border-radius: 999px;
@@ -301,7 +283,6 @@ export const Button = styled.button<{ color?: string }>`
   }
 `;
 
-/* 입력창 */
 export const Input = styled.input`
   padding: 8px;
   border-radius: 8px;

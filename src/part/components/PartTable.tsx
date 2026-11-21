@@ -1,8 +1,6 @@
 import { Table, Th, Td, StatusBadge } from "../../components/common/PageLayout";
 import type { PartRecord, PartStatus } from "../PartTypes";
-// import { fmtDate } from "../../utils/string";
 
-// 요청 상태
 const statusVariant: Record<PartStatus, "rejected" | "info" | "success"> = {
   적정: "info",
   여유: "success",
@@ -10,7 +8,6 @@ const statusVariant: Record<PartStatus, "rejected" | "info" | "success"> = {
 };
 
 export default function PartTable({ rows }: { rows: PartRecord[] }) {
-  // 상태 계산 로직
   const getStatus = (r: PartRecord): PartStatus => {
     if (r.lowStock) return "부족";
     if (r.onHandQty <= r.safetyStockQty * 1.2) return "적정";
@@ -27,7 +24,6 @@ export default function PartTable({ rows }: { rows: PartRecord[] }) {
             <Th>가용 재고</Th>
             <Th>안전 재고</Th>
             <Th>대리점</Th>
-            {/* <Th>수정일</Th> */}
             <Th>상태</Th>
           </tr>
         </thead>
@@ -43,7 +39,6 @@ export default function PartTable({ rows }: { rows: PartRecord[] }) {
                   <Td>{r.onHandQty.toLocaleString()}</Td>
                   <Td>{r.safetyStockQty.toLocaleString()}</Td>
                   <Td>{r.supplierName}</Td>
-                  {/* <Td>{fmtDate(r.updatedAt)}</Td> */}
                   <Td>
                     <StatusBadge $variant={statusVariant[status]}>
                       {status}

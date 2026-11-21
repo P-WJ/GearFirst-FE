@@ -63,7 +63,6 @@ export default function PurchasingPage() {
     allPagination.resetPage();
   };
 
-  // 모달 상태
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<PurchasingRecord | null>(
     null
@@ -72,7 +71,6 @@ export default function PurchasingPage() {
     "register"
   );
 
-  /** 선정된 업체 (isSelected=true) */
   const selectedPagination = usePagination(1, 10);
   const [keywordSelected, setKeywordSelected] = useState("");
   const [appliedKeywordSelected, setAppliedKeywordSelected] = useState("");

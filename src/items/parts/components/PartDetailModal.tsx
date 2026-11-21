@@ -36,7 +36,6 @@ const PartDetailModal = ({
   onDelete,
   disableOverlayClose = false,
 }: Props) => {
-  // ESC로 닫기
   useEffect(() => {
     if (!isOpen) return;
     const handleKey = (e: KeyboardEvent) => {
@@ -112,7 +111,6 @@ const PartDetailModal = ({
           <CloseButton onClick={onClose}>&times;</CloseButton>
         </Header>
 
-        {/* 부품 정보 */}
         <Section>
           <SectionTitle>부품 정보</SectionTitle>
           <DetailGrid>
@@ -154,7 +152,6 @@ const PartDetailModal = ({
           </DetailGrid>
         </Section>
 
-        {/* 작성 정보 */}
         <Section>
           <SectionTitle>작성 정보</SectionTitle>
           <DetailGrid>
@@ -169,7 +166,6 @@ const PartDetailModal = ({
           </DetailGrid>
         </Section>
 
-        {/* 액션 */}
         <Footer>
           <Button color="black" onClick={() => onEdit?.(record)} title="수정">
             수정

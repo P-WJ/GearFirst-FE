@@ -1,11 +1,7 @@
-// 상태 Enum (서버 ENUM 기준 그대로)
 export type OrderStatus =
-  // | "PENDING"
   "APPROVED" | "REJECTED" | "SHIPPED" | "COMPLETED" | "CANCELLED";
 
-// 상태 한글 변환
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-  // PENDING: "승인 대기",
   APPROVED: "승인 완료",
   REJECTED: "반려",
   SHIPPED: "출고 중",
@@ -13,12 +9,10 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   CANCELLED: "취소",
 };
 
-// 상태 색상 매핑
 export const ORDER_STATUS_VARIANTS: Record<
   OrderStatus,
   "info" | "success" | "rejected" | "warning"
 > = {
-  // PENDING: "info",
   APPROVED: "success",
   REJECTED: "rejected",
   SHIPPED: "warning",
@@ -26,7 +20,6 @@ export const ORDER_STATUS_VARIANTS: Record<
   CANCELLED: "info",
 };
 
-// 미승인 발주 목록 DTO
 export interface PendingOrderItem {
   orderId: number;
   orderNumber: string;
@@ -52,7 +45,6 @@ export interface PendingOrderResponse {
   };
 }
 
-// 승인 목록
 export interface ProcessedOrderItem {
   orderId: number;
   orderNumber: string;
@@ -78,7 +70,6 @@ export interface ProcessedOrderResponse {
   };
 }
 
-// 반려 목록
 export interface CancelOrderItem {
   orderId: number;
   orderNumber: string;
@@ -104,7 +95,6 @@ export interface CancelOrderResponse {
   };
 }
 
-// 상세 정보
 export interface OrderInfoItem {
   orderId: number;
   orderNumber: string;
@@ -121,7 +111,6 @@ export interface OrderInfoItem {
   items: PartItem[];
 }
 
-// 부품
 export interface PartItem {
   id: number;
   partName: string;

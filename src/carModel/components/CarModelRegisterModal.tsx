@@ -71,7 +71,6 @@ export default function CarModelRegisterModal({
     }
   }, [loading, validate, onSubmit, trimmed, enabled, onClose]);
 
-  // ESC / Cmd+Enter
   useEffect(() => {
     if (!isOpen) return;
     const h = (e: KeyboardEvent) => {
@@ -85,7 +84,6 @@ export default function CarModelRegisterModal({
     return () => window.removeEventListener("keydown", h);
   }, [isOpen, loading, onClose, handleSubmit]);
 
-  // 상태 초기화
   useEffect(() => {
     if (!isOpen) return;
     setName("");
@@ -165,4 +163,3 @@ export default function CarModelRegisterModal({
     </Overlay>
   );
 }
-

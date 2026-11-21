@@ -48,8 +48,6 @@ export type CarModelUpdateDTO = {
   enabled?: boolean;
 };
 
-/* ======================= server models ======================= */
-
 export type ServerCarModel = {
   id?: number;
   name?: string;

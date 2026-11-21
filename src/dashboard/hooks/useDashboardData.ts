@@ -190,7 +190,7 @@ export function useDashboardData() {
         assetValue,
         totalQty,
         avgUnitPrice: totalQty ? Math.round(assetValue / totalQty) : 0,
-        top10Share, // %
+        top10Share,
         abc: { a, b, c },
         warehouseDistribution,
         rawItems: items,
@@ -433,7 +433,6 @@ export function useDashboardData() {
 }
 
 export async function fetchPods(namespace: string = "default") {
-  // 개발/우회 모드에서는 프록시 호출 자체를 생략합니다.
   if (USE_MOCK || import.meta.env.VITE_AUTH_BYPASS === "true") {
     return [
       { name: "api-gateway-0", phase: "Running" },

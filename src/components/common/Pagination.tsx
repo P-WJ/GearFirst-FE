@@ -12,17 +12,17 @@ type Props = {
   isBusy?: BusyLike;
   maxButtons?: number;
 
-  totalItems?: number; // 총 건수 (있으면 범위 요약 표시)
-  pageSize?: number; // 현재 페이지 크기
-  pageSizeOptions?: number[]; // 페이지 크기 후보 (예: [10,20,50,100])
+  totalItems?: number;
+  pageSize?: number;
+  pageSizeOptions?: number[];
   onChangePageSize?: (size: number) => void;
 
-  showSummary?: boolean; // 총건/범위 표시
-  showPageSize?: boolean; // 페이지 크기 셀렉트 표시
-  showJump?: boolean; // 페이지 숫자 직접 입력(빠른 이동)
-  align?: "start" | "center" | "end"; // 배치 정렬
-  dense?: boolean; // compact 모드
-  sticky?: boolean; // 하단 고정 바
+  showSummary?: boolean;
+  showPageSize?: boolean;
+  showJump?: boolean;
+  align?: "start" | "center" | "end";
+  dense?: boolean;
+  sticky?: boolean;
 };
 
 export default function Pagination({
@@ -62,18 +62,12 @@ export default function Pagination({
 
   const goto = (n: number) => !busy && onChange(clamp(n));
 
-  // 요약(범위) 계산
   const { from, to } = useMemo(() => {
     if (!totalItems || !pageSize) return { from: undefined, to: undefined };
     const f = (page - 1) * pageSize + 1;
     const t = Math.min(page * pageSize, totalItems);
     return { from: f, to: t };
   }, [page, pageSize, totalItems]);
-
-  if (totalPages <= 1) {
-    // 총건수나 페이지 크기 선택은 보여주고 싶다면 이 아래 return을 지우고 Wrap는 유지 가능
-    // return null;
-  }
 
   return (
     <Bar
@@ -84,7 +78,6 @@ export default function Pagination({
       aria-label="페이지네이션"
     >
       <Left></Left>
-      {/* 가운데: 컨트롤 */}
       <Center>
         <IconButton
           aria-label="처음 페이지"
@@ -151,7 +144,6 @@ export default function Pagination({
         </IconButton>
       </Center>
 
-      {/* 왼쪽: 요약/페이지 크기 */}
       <Right>
         {showSummary && totalItems !== undefined && pageSize !== undefined && (
           <Summary aria-live="polite">
@@ -184,8 +176,6 @@ export default function Pagination({
     </Bar>
   );
 }
-
-/* ===================== styles ===================== */
 
 const Bar = styled.div<{
   $align: "start" | "center" | "end";
@@ -358,4 +348,3 @@ const Ellipsis = styled.span`
   padding: 0 4px;
   color: #9ca3af;
 `;
-

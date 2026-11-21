@@ -46,11 +46,10 @@ const CategoryDetailModal = ({
   } = useQuery<CategoryDetailRecord, Error>({
     queryKey: categoryKeys.detail(id),
     queryFn: () => fetchCategoryDetail(id),
-    enabled: Boolean(isOpen && id), // 모달 열리고 id 있을 때만 요청
+    enabled: Boolean(isOpen && id),
     staleTime: 5 * 60 * 1000,
   });
 
-  // ESC 닫기
   useEffect(() => {
     if (!isOpen) return;
     const h = (e: KeyboardEvent) => e.key === "Escape" && onClose();

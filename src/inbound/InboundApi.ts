@@ -19,7 +19,6 @@ export const inboundKeys = {
   detail: (id: string | number) => ["inbound", "detail", id] as const,
 };
 
-/* ========== 목록 조회 파라미터 ========== */
 export type InboundListParams = {
   status?: InboundStatus;
   date?: string;
@@ -151,7 +150,6 @@ function buildInboundQuery(params?: InboundListParams): URLSearchParams {
   return qs;
 }
 
-/* ========== 서버 DTO ========== */
 type ServerInboundListItem = {
   noteId: number;
   receivingNo?: string;
@@ -203,7 +201,6 @@ type ServerInboundDetail = {
   }>;
 };
 
-/* ========== 서버 → UI 변환 ========== */
 function toInboundRecord(s: ServerInboundListItem): InboundRecord {
   return {
     noteId: s.noteId,
@@ -257,7 +254,6 @@ export function toInboundDetailRecord(
   };
 }
 
-/* ========== API 호출 ========== */
 async function requestInboundList(
   params: InboundListParams | undefined,
   defaultStatus?: InboundStatus

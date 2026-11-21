@@ -25,7 +25,6 @@ function normalizeCategory(form: CategoryFormModel): CategoryBase {
   };
 }
 
-// 폼 -> 생성 DTO
 export function toCategoryCreatePayload(
   form: CategoryFormModel
 ): CategoryCreateDTO {
@@ -36,7 +35,6 @@ export function toCategoryCreatePayload(
   };
 }
 
-// 폼 -> 수정 DTO
 export function toCategoryUpdatePayload(
   form: CategoryFormModel
 ): CategoryUpdateDTO {

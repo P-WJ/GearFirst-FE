@@ -10,7 +10,6 @@ export default function CategoryTable({ rows }: { rows: CategoryRecord[] }) {
   const [selected, setSelected] = useState<CategoryRecord | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  // 등록/수정 모달
   const [isRegOpen, setIsRegOpen] = useState(false);
   const [regMode, setRegMode] = useState<"create" | "edit">("create");
   const [initialForEdit, setInitialForEdit] =
@@ -79,7 +78,6 @@ export default function CategoryTable({ rows }: { rows: CategoryRecord[] }) {
         </tbody>
       </Table>
 
-      {/* 상세 모달 */}
       {isDetailOpen && selected && (
         <CategoryDetailModal
           record={selected}
@@ -103,7 +101,6 @@ export default function CategoryTable({ rows }: { rows: CategoryRecord[] }) {
         />
       )}
 
-      {/* 등록/수정 모달 */}
       <CategoryRegisterModal
         isOpen={isRegOpen}
         onClose={() => setIsRegOpen(false)}
@@ -113,7 +110,6 @@ export default function CategoryTable({ rows }: { rows: CategoryRecord[] }) {
           if (regMode === "edit" && editingId != null) {
             await updateMut.mutateAsync({ id: editingId, form });
           }
-          // (create는 다른 곳에서 쓰면 연결)
         }}
       />
     </>

@@ -29,7 +29,6 @@ export const userKeys = {
   workType: ["users", "workType"] as const,
 };
 
-// 지역 조회
 export async function getRegion(): Promise<ListResponse<Region[]>> {
   const url = `${USER_BASE_PATH}/getRegion`;
   const res = await fetch(url, { headers: { Accept: "application/json" } });
@@ -46,7 +45,6 @@ export async function getRegion(): Promise<ListResponse<Region[]>> {
   };
 }
 
-// 지점 조회
 export async function getWorkType(): Promise<ListResponse<WorkType[]>> {
   const url = `${USER_BASE_PATH}/getWorkType`;
   const res = await fetch(url, { headers: { Accept: "application/json" } });
@@ -63,7 +61,6 @@ export async function getWorkType(): Promise<ListResponse<WorkType[]>> {
   };
 }
 
-// 유저 조회
 export async function fetchUsers(
   params: UserListParams = {}
 ): Promise<ListResponse<UserRecord[]>> {
@@ -116,7 +113,6 @@ export async function fetchUsers(
   };
 }
 
-// 유저 생성
 export async function createUser(dto: CreateUserDTO): Promise<UserRecord> {
   // 공개 회원가입 엔드포인트 (인증 헤더 없이 호출)
   const res = await fetch(`${AUTH_ENDPOINTS.SIGN_UP}`, {
@@ -155,7 +151,6 @@ export async function createUser(dto: CreateUserDTO): Promise<UserRecord> {
   return normalizeUserResponse(parsed.data, dto);
 }
 
-// 유저 수정
 export async function updateUser(dto: UpdateUserDTO): Promise<UserRecord> {
   if (!dto.userId) {
     throw new Error("유저 수정 실패: userId가 필요합니다.");

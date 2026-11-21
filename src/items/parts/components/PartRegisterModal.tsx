@@ -43,20 +43,18 @@ const PartRegisterModal = ({
   const [categories, setCategories] = useState<ServerPartCategory[]>([]);
   const [enabled, setEnabled] = useState<boolean>(true);
 
-  /* 카테고리 로드 */
   useEffect(() => {
     if (!isOpen) return;
     (async () => {
       try {
-        const list = await fetchPartCategories(); // 서버: /parts/categories?keyword=
+        const list = await fetchPartCategories();
         setCategories(list);
       } catch {
-        setCategories([]); // 실패 시 빈 목록
+        setCategories([]);
       }
     })();
   }, [isOpen]);
 
-  /* 초기값 주입 */
   useEffect(() => {
     if (!isOpen) return;
 
@@ -115,7 +113,6 @@ const PartRegisterModal = ({
           </CloseButton>
         </Header>
 
-        {/* 부품 정보 */}
         <Section>
           <SectionTitle>부품 정보</SectionTitle>
           <DetailGrid $cols={2}>

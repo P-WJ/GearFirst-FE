@@ -58,7 +58,7 @@ export default function UserDetailModal({
         <ModalContainer width="40%" onClick={(e) => e.stopPropagation()}>
           <Header>
             <Title>사용자 상세</Title>
-            <CloseButton onClick={onClose}>✕</CloseButton>
+            <CloseButton onClick={onClose}>&times;</CloseButton>
           </Header>
 
           <Section>

@@ -48,19 +48,17 @@ const SearchButton = styled.button`
   }
 `;
 
-// VendorQuote에 선택 여부를 추가한 확장 타입
 type VendorQuoteWithSelected = VendorQuote & { selected?: boolean };
 
 export default function SourcingSection() {
   const queryClient = useQueryClient();
 
-  /** 입력 폼 상태 */
   const [materialCode, setMaterialCode] = useState("");
   const [materialName, setMaterialName] = useState("");
   const [needDate, setNeedDate] = useState("");
   const [tempDate, setTempDate] = useState("");
 
-  const [isSearchModalOpen, setSearchModalOpen] = useState(false); // 검색 모달 제어
+  const [isSearchModalOpen, setSearchModalOpen] = useState(false);
   const handleSelectMaterial = (selected: MaterialItem) => {
     setMaterialCode(selected.materialCode);
     setMaterialName(selected.materialName);
@@ -68,22 +66,14 @@ export default function SourcingSection() {
 
   const [basket, setBasket] = useState<BasketLine[]>([]);
 
-  // const [materials, setMaterials] = useState<
-  //   { id: number; materialCode: string; materialName: string }[]
-  // >([]);
-
-  // useEffect(() => {
-  //   fetchMaterialList("").then(setMaterials);
-  // }, []);
-
   const [vendorCandidates, setVendorCandidates] = useState<
     VendorQuoteWithSelected[]
   >([]);
   const [isSearching, setIsSearching] = useState(false);
 
   const handleSearch = async () => {
-    const dateToUse = tempDate; // 임시 날짜를 지역 변수에 저장
-    setNeedDate(dateToUse); // 상태도 업데이트
+    const dateToUse = tempDate;
+    setNeedDate(dateToUse);
 
     if (!materialName && !materialCode) {
       alert("자재명 또는 코드 중 하나를 입력하세요.");
@@ -95,7 +85,6 @@ export default function SourcingSection() {
     }
     try {
       setIsSearching(true);
-      // YYYY-MM-DD → YYYYMMDD로 변환
       const formattedDate = needDate.replaceAll("-", "");
 
       const candidates = await fetchCompanyCandidates({
@@ -124,11 +113,10 @@ export default function SourcingSection() {
   };
 
   const handleSelectQuote = (q: VendorQuote) => {
-    // 중복 방지
     const already = basket.some(
       (b) => b.materialCode === q.materialCode && b.vendorId === q.vendorId
     );
-    if (already) return; // 이미 추가된 항목이면 무시
+    if (already) return;
 
     const line: BasketLine = {
       materialCode: q.materialCode,
@@ -186,10 +174,9 @@ export default function SourcingSection() {
       console.log("PO 생성 성공:", res);
       alert("PO 생성이 완료되었습니다!");
 
-      // React Query 캐시 무효화
       queryClient.invalidateQueries({ queryKey: ["companyList"] });
 
-      setBasket([]); // 장바구니 비우기
+      setBasket([]);
     } catch (err: unknown) {
       if (err instanceof Error) {
         console.error("자재 목록 조회 실패:", err.message);
@@ -215,7 +202,6 @@ export default function SourcingSection() {
       minHeight={320}
     >
       <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 16 }}>
-        {/* 왼쪽: 자재 입력 */}
         <FormContainer>
           <div
             style={{
@@ -251,24 +237,18 @@ export default function SourcingSection() {
             onChange={(e) => setMaterialName(e.target.value)}
             readOnly
           />
-          {/* <StyledInput
-            type="date"
-            value={needDate}
-            onChange={(e) => setNeedDate(e.target.value)}
-          /> */}
 
           <SingleDatePicker
             value={tempDate}
-            onChange={(v) => setTempDate(v)} // 클릭 시 임시 상태에만 반영
+            onChange={(v) => setTempDate(v)}
             placeholder="날짜 선택"
           />
           <SearchButton onClick={handleSearch}>조회</SearchButton>
         </FormContainer>
 
-        {/* 오른쪽: 후보 공급업체 */}
         <div>
           <VendorQuotesTable
-            rows={filteredCandidates} // or 그냥 rows={filteredCandidates}
+            rows={filteredCandidates}
             needDate={needDate}
             onSelect={handleSelectQuote}
           />

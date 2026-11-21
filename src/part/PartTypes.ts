@@ -1,20 +1,20 @@
 export type PartStatus = "여유" | "적정" | "부족";
 
 export interface PartRecord {
-  warehouseCode: string; // 창고번호
-  part: PartItem; // 부품
-  onHandQty: number; // 수량 (가용 재고)
-  updatedAt: string; // 마지막 수정일
+  warehouseCode: string;
+  part: PartItem;
+  onHandQty: number;
+  updatedAt: string;
   lastUpdatedAt?: string;
-  lowStock: boolean; // 상태
-  safetyStockQty: number; // 안전 재고
-  supplierName: string; // 대리점
+  lowStock: boolean;
+  safetyStockQty: number;
+  supplierName: string;
 }
 
 export interface PartItem {
-  id: number; // 부품 ID
-  code: string; // 부품 코드
-  name: string; // 부품명
+  id: number;
+  code: string;
+  name: string;
 }
 
 export interface PartResponse {

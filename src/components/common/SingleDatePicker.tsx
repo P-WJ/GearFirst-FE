@@ -27,14 +27,13 @@ const maskYYYYMMDD = (digits: string) => {
 const isValidYMD = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s);
 
 const StyledDateInput = styled(BaseInput)`
-  padding-right: 36px; /* 달력 아이콘 자리만 확보 */
+  padding-right: 36px;
   width: 100%;
 `;
 
-// 아이콘과 래퍼
 const InputWrap = styled.div`
   position: relative;
-  width: 100%; /* 그리드 셀 가로 꽉 채움 */
+  width: 100%;
   display: inline-flex;
   align-items: center;
 `;
@@ -50,7 +49,6 @@ const CalendarIcon = styled(CalendarDays)`
   pointer-events: none;
 `;
 
-// 커스텀 인풋
 type CustomInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   onValueChange?: (v: string) => void;
 };
@@ -70,7 +68,6 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
           if (isValidYMD(masked)) onValueChange?.(masked);
         }}
         onBlur={(e) => {
-          // 필요하면 불완전 입력 처리
           onBlur?.(e);
         }}
       />
@@ -80,7 +77,6 @@ const CustomInput = forwardRef<HTMLInputElement, CustomInputProps>(
 );
 CustomInput.displayName = "CustomInput";
 
-// 단일 날짜 피커 컴포넌트 (외형 동일, 달력 기능만 추가)
 export default function SingleDatePicker({
   value,
   onChange,

@@ -37,7 +37,6 @@ export default function CategoryRegisterModal({
   onSubmit,
   disableOverlayClose = false,
 }: Props) {
-  // 1) 모든 훅은 항상 호출
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -102,7 +101,6 @@ export default function CategoryRegisterModal({
     }
   }, [isSubmitting, validate, onSubmit, trimmed.name, trimmed.description]);
 
-  // ESC / Cmd+Enter
   useEffect(() => {
     if (!isOpen) return;
     const h = (e: KeyboardEvent) => {
@@ -116,7 +114,6 @@ export default function CategoryRegisterModal({
     return () => window.removeEventListener("keydown", h);
   }, [isOpen, isSubmitting, onClose, handleSubmit]);
 
-  // 프리필 & 상태 초기화
   useEffect(() => {
     if (!isOpen) return;
     setName(initial?.name ?? "");
@@ -125,7 +122,6 @@ export default function CategoryRegisterModal({
     setErrorMsg(null);
   }, [isOpen, initial]);
 
-  // 2) 여기서 early return (훅 이후)
   if (!isOpen) return null;
 
   const canSubmit =

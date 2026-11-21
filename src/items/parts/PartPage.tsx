@@ -27,7 +27,6 @@ type AppliedFilters = {
 };
 
 export default function PartPage() {
-  // 검색 상태
   const [keyword, setKeyword] = useState("");
   const [enabledFilter, setEnabledFilter] =
     useState<AppliedFilters["enabled"]>("all");
@@ -37,7 +36,6 @@ export default function PartPage() {
     enabled: "all",
   });
 
-  // 페이지네이션 (UI 1-based)
   const {
     page,
     pageSize,
@@ -46,7 +44,6 @@ export default function PartPage() {
     resetPage,
   } = usePagination(1, 10);
 
-  // 등록/수정 모달
   const [isRegOpen, setIsRegOpen] = useState(false);
   const [regMode, setRegMode] = useState<"create" | "edit">("create");
   const [initialForEdit, setInitialForEdit] = useState<PartFormModel | null>(
@@ -80,7 +77,6 @@ export default function PartPage() {
   const total = data?.meta?.total ?? 0;
   const totalPages = data?.meta?.totalPages ?? 1;
 
-  // 검색/리셋
   const onSearch = useCallback(() => {
     setApplied({
       keyword: keyword.trim(),
@@ -112,11 +108,9 @@ export default function PartPage() {
     [keyword, resetPage]
   );
 
-  // 생성 뮤테이션 (UI DTO → 서버 바디 매핑은 createPart 내부에서 처리)
   const createMut = useMutation<PartRecord, Error, PartCreateDTO>({
     mutationFn: createPart,
     onSuccess: () => {
-      // 현재 페이지 포함 전체 리스트 무효화
       queryClient.invalidateQueries({ queryKey: partKeys.records });
       setIsRegOpen(false);
     },

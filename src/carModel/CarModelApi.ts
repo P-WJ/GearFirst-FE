@@ -43,7 +43,7 @@ export const carModelPartKeys = {
 export type CarModelListParams = {
   q?: string;
   enabled?: boolean;
-  page?: number; // 1-based
+  page?: number;
   pageSize?: number;
   sort?: string | string[];
 };
@@ -63,8 +63,6 @@ export type CarModelPartListParams = {
   pageSize?: number;
   sort?: string | string[];
 };
-
-/* ======================= helpers ======================= */
 
 function buildSort(qs: URLSearchParams, sort: string | string[] | undefined) {
   if (!sort) return;
@@ -121,8 +119,6 @@ function resolvePartId(partId: number | string): number {
   }
   return parsed;
 }
-
-/* ======================= APIs ======================= */
 
 export async function fetchCarModels(
   params?: CarModelListParams
