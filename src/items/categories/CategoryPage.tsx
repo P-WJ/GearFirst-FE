@@ -22,6 +22,7 @@ import {
 import PageSection from "../../components/common/sections/PageSection";
 import FilterResetButton from "../../components/common/filters/FilterResetButton";
 import { usePagination } from "../../hooks/usePagination";
+import { invalidateDomain } from "../../utils/invalidateDomain";
 
 type AppliedFilters = {
   keyword: string;
@@ -104,7 +105,7 @@ export default function CategoryPage() {
   const createMut = useMutation<CategoryRecord, Error, CategoryFormModel>({
     mutationFn: (form) => createCategory(toCategoryCreatePayload(form)),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.records });
+      invalidateDomain(queryClient, "category");
       setIsRegOpen(false);
     },
   });

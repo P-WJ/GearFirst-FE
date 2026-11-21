@@ -4,7 +4,8 @@ import { Table, Td, Th } from "../../../components/common/PageLayout";
 import type { CategoryFormModel, CategoryRecord } from "../CategoryTypes";
 import CategoryDetailModal from "./CategoryDetailModal";
 import CategoryRegisterModal from "./CategoryRegisterModal";
-import { categoryKeys, updateCategory, deleteCategory } from "../CategoryApi";
+import { updateCategory, deleteCategory } from "../CategoryApi";
+import { invalidateDomain } from "../../../utils/invalidateDomain";
 
 export default function CategoryTable({ rows }: { rows: CategoryRecord[] }) {
   const [selected, setSelected] = useState<CategoryRecord | null>(null);
@@ -28,7 +29,7 @@ export default function CategoryTable({ rows }: { rows: CategoryRecord[] }) {
     }) =>
       updateCategory(id, { name: form.name, description: form.description }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: categoryKeys.records });
+      invalidateDomain(qc, "category");
       setIsRegOpen(false);
     },
   });
@@ -36,7 +37,7 @@ export default function CategoryTable({ rows }: { rows: CategoryRecord[] }) {
   const deleteMut = useMutation({
     mutationFn: (id: string | number) => deleteCategory(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: categoryKeys.records });
+      invalidateDomain(qc, "category");
       setIsDetailOpen(false);
       setSelected(null);
     },

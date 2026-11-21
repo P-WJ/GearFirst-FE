@@ -31,6 +31,7 @@ import Page from "../components/common/Page";
 import PageSection from "../components/common/sections/PageSection";
 import FilterResetButton from "../components/common/filters/FilterResetButton";
 import { usePagination } from "../hooks/usePagination";
+import { invalidateDomain } from "../utils/invalidateDomain";
 
 export default function CarModelPage() {
   const [selectedPart, setSelectedPart] = useState<PartRecord | null>(null);
@@ -81,11 +82,8 @@ export default function CarModelPage() {
       partId: number | string;
       payload: PartCarModelCreateDTO;
     }) => createPartCarModelMapping(partId, payload),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["part", "carModels", String(variables.partId)],
-        exact: false,
-      });
+    onSuccess: () => {
+      invalidateDomain(queryClient, "carModel");
       setIsMappingModalOpen(false);
     },
     onError: (error: Error) => alert(error.message),
@@ -101,11 +99,8 @@ export default function CarModelPage() {
       carModelId: number;
       payload: PartCarModelUpdateDTO;
     }) => updatePartCarModelMapping(partId, carModelId, payload),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["part", "carModels", String(variables.partId)],
-        exact: false,
-      });
+    onSuccess: () => {
+      invalidateDomain(queryClient, "carModel");
       setIsMappingModalOpen(false);
     },
     onError: (error: Error) => alert(error.message),
@@ -119,11 +114,8 @@ export default function CarModelPage() {
       partId: number | string;
       carModelId: number;
     }) => deletePartCarModelMapping(partId, carModelId),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ["part", "carModels", String(variables.partId)],
-        exact: false,
-      });
+    onSuccess: () => {
+      invalidateDomain(queryClient, "carModel");
     },
     onError: (error: Error) => alert(error.message),
   });

@@ -16,7 +16,8 @@ import {
   type PartRecord,
   type PartUpdateDTO,
 } from "../PartTypes";
-import { partKeys, deletePart, updatePart } from "../PartApi";
+import { deletePart, updatePart } from "../PartApi";
+import { invalidateDomain } from "../../../utils/invalidateDomain";
 
 export default function PartTable({ rows }: { rows: PartRecord[] }) {
   const [selectedRecord, setSelectedRecord] = useState<PartRecord | null>(null);
@@ -48,7 +49,7 @@ export default function PartTable({ rows }: { rows: PartRecord[] }) {
   >({
     mutationFn: ({ id, patch }) => updatePart(id, patch),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: partKeys.records });
+      invalidateDomain(queryClient, "part");
       setIsRegOpen(false);
     },
   });
@@ -60,7 +61,7 @@ export default function PartTable({ rows }: { rows: PartRecord[] }) {
   >({
     mutationFn: (id) => deletePart(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: partKeys.records });
+      invalidateDomain(queryClient, "part");
       closeDetail();
     },
   });

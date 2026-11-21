@@ -21,6 +21,7 @@ import BOMTable from "./components/BOMTable";
 import BOMRegisterModal, {
   type AddMaterialsPayload,
 } from "./components/BOMRegisterModal";
+import { invalidateDomain } from "../utils/invalidateDomain";
 
 type CateFilter = string | "ALL";
 
@@ -122,7 +123,7 @@ export default function BOMPage() {
   const createMut = useMutation<{ ok: boolean }, Error, BOMCreateDTO>({
     mutationFn: addBOMMaterials,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: bomKeys.records });
+      invalidateDomain(queryClient, "bom");
       setIsRegOpen(false);
     },
     onError: (err) => {

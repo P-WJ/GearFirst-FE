@@ -8,8 +8,9 @@ import {
 import MaterialDetailModal from "./MaterialDetailModal";
 import MaterialRegisterModal from "./MaterialRegisterModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteMaterial, materialKeys, updateMaterial } from "../MaterialApi";
+import { deleteMaterial, updateMaterial } from "../MaterialApi";
 import { Table, Td, Th } from "../../../components/common/PageLayout";
+import { invalidateDomain } from "../../../utils/invalidateDomain";
 
 export default function MaterialTable({ rows }: { rows: MaterialRecord[] }) {
   const [selectedRecord, setSelectedRecord] = useState<MaterialRecord | null>(
@@ -40,7 +41,7 @@ export default function MaterialTable({ rows }: { rows: MaterialRecord[] }) {
   >({
     mutationFn: ({ id, patch }) => updateMaterial(id, patch),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: materialKeys.records });
+      invalidateDomain(queryClient, "material");
       setIsRegOpen(false);
     },
   });
@@ -55,7 +56,7 @@ export default function MaterialTable({ rows }: { rows: MaterialRecord[] }) {
     };
 
     await deleteMaterial(data);
-    await queryClient.invalidateQueries({ queryKey: materialKeys.records });
+    await invalidateDomain(queryClient, "material");
     closeDetail();
   };
 

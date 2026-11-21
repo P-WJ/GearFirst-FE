@@ -7,7 +7,8 @@ import {
   type BOMRecord,
   type DeleteBOMMaterialsDTO,
 } from "../BOMTypes";
-import { bomKeys, deleteBOMMaterials } from "../BOMApi";
+import { deleteBOMMaterials } from "../BOMApi";
+import { invalidateDomain } from "../../utils/invalidateDomain";
 
 export default function BOMTable({ rows }: { rows: BOMRecord[] }) {
   const safeRows: BOMRecord[] = Array.isArray(rows) ? rows : [];
@@ -30,15 +31,7 @@ export default function BOMTable({ rows }: { rows: BOMRecord[] }) {
   const deleteMut = useMutation<{ ok: boolean }, Error, DeleteBOMMaterialsDTO>({
     mutationFn: deleteBOMMaterials,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: bomKeys.records,
-        exact: false,
-      });
-      if (selectedRecord?.bomCodeId != null) {
-        await queryClient.invalidateQueries({
-          queryKey: bomKeys.materials(String(selectedRecord.bomCodeId)),
-        });
-      }
+      await invalidateDomain(queryClient, "bom");
     },
     onError: (e) => alert(e.message ?? "자재 삭제 중 오류가 발생했습니다."),
   });

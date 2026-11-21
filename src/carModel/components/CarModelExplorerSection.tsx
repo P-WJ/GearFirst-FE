@@ -25,6 +25,7 @@ import {
   type CarModelPartListParams,
 } from "../CarModelApi";
 import CarModelRegisterModal from "./CarModelRegisterModal";
+import { invalidateDomain } from "../../utils/invalidateDomain";
 
 const MODEL_PAGE_SIZE = 8;
 const PART_PAGE_SIZE = 10;
@@ -162,7 +163,7 @@ export default function CarModelExplorerSection() {
     mutationFn: ({ id, enabled }: { id: number; enabled: boolean }) =>
       updateCarModel(id, { enabled }),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["carModel"], exact: false });
+      invalidateDomain(queryClient, "carModel");
       setSelected((prev) =>
         prev && prev.id === variables.id
           ? { ...prev, enabled: variables.enabled }
@@ -175,10 +176,7 @@ export default function CarModelExplorerSection() {
   const createCarModelMut = useMutation({
     mutationFn: createCarModel,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["carModel"],
-        exact: false,
-      });
+      invalidateDomain(queryClient, "carModel");
       setIsCarModelRegisterModalOpen(false);
     },
     onError: (error: Error) => alert(error.message),

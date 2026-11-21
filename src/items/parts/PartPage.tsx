@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import PartTable from "./components/PartTable";
 import PartRegisterModal from "./components/PartRegisterModal";
 
-import { partKeys, createPart } from "./PartApi";
+import { createPart } from "./PartApi";
 import {
   toPartCreateDTO,
   type PartCreateDTO,
@@ -20,6 +20,7 @@ import { usePartSearch } from "./hooks/usePartSearch";
 import PageSection from "../../components/common/sections/PageSection";
 import FilterResetButton from "../../components/common/filters/FilterResetButton";
 import { usePagination } from "../../hooks/usePagination";
+import { invalidateDomain } from "../../utils/invalidateDomain";
 
 type AppliedFilters = {
   keyword: string;
@@ -111,7 +112,7 @@ export default function PartPage() {
   const createMut = useMutation<PartRecord, Error, PartCreateDTO>({
     mutationFn: createPart,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: partKeys.records });
+      invalidateDomain(queryClient, "part");
       setIsRegOpen(false);
     },
   });

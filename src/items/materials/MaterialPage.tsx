@@ -8,7 +8,7 @@ import {
   type MaterialFormModel,
 } from "./MaterialTypes";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createMaterial, materialKeys } from "./MaterialApi";
+import { createMaterial } from "./MaterialApi";
 import SearchBox from "../../components/common/SearchBox";
 import Pagination from "../../components/common/Pagination";
 import MaterialTable from "./components/MaterialTable";
@@ -16,6 +16,7 @@ import MaterialRegisterModal from "./components/MaterialRegisterModal";
 import { useMaterialSearch } from "./hooks/useMaterialSearch";
 import FilterResetButton from "../../components/common/filters/FilterResetButton";
 import { usePagination } from "../../hooks/usePagination";
+import { invalidateDomain } from "../../utils/invalidateDomain";
 
 type AppliedFilters = {
   keyword: string;
@@ -84,7 +85,7 @@ export default function MaterialPage() {
   const createMut = useMutation<MaterialCreateDTO, Error, MaterialCreateDTO>({
     mutationFn: createMaterial,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: materialKeys.records });
+      invalidateDomain(queryClient, "material");
       setIsRegOpen(false);
     },
   });
